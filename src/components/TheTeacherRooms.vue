@@ -26,6 +26,7 @@ export default {
           secret,
           name: result.name,
           currentlyOpen: false,
+          inviteCodes: [],
         })
       }
     },
