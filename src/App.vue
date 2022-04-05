@@ -1,6 +1,40 @@
-<script setup>
+<script>
 import HelloWorld from "./components/HelloWorld.vue";
 import TheWelcome from "./components/TheWelcome.vue";
+import TheRoleChoice from "./components/TheRoleChoice.vue";
+import TheTeacherRooms from "./components/TheTeacherRooms.vue";
+import ThePupilRooms from "./components/ThePupilRooms.vue";
+import TheTeacherRoom from "./components/TheTeacherRoom.vue";
+export default {
+  components: {
+    HelloWorld,
+    TheWelcome,
+    TheRoleChoice,
+    TheTeacherRooms,
+    ThePupilRooms,
+    TheTeacherRoom,
+  },
+  data() {
+    return {
+      mainView: "TheRoleChoice",
+      globalRoom: {
+        room: null
+      },
+    }
+  },
+  methods: {
+    setMainView(mainView) {
+      this.mainView = mainView
+    },
+  },
+  provide() {
+    const { setMainView, globalRoom } = this
+    return {
+      setMainView,
+      globalRoom,
+    }
+  },
+}
 </script>
 
 <template>
@@ -12,14 +46,12 @@ import TheWelcome from "./components/TheWelcome.vue";
       width="125"
       height="125"
     />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <KeepAlive>
+      <component :is="mainView"></component>
+    </KeepAlive>
   </main>
 </template>
 
