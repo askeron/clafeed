@@ -37,6 +37,10 @@ export default {
     abortEditName() {
       this.editNameVisible = false
     },
+    goBack() {
+      this.room.inviteCodes = []
+      this.setMainView('TheTeacherRooms')
+    },
     async createInviteCode() {
       const room = this.room
       const response = await fetch('http://localhost:8080/api/v1/owner/createRoomInviteCode', {
@@ -75,7 +79,7 @@ export default {
 
 <template>
   <p>
-    <button @click.prevent="setMainView('TheTeacherRooms')">Zurück</button>
+    <button @click.prevent="goBack()">Zurück</button>
   </p>
   <p>
     Lehrer - Raum:
