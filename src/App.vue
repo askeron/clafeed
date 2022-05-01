@@ -2,13 +2,8 @@
 import HelloWorld from "./components/HelloWorld.vue";
 import TheWelcome from "./components/TheWelcome.vue";
 import TheRoleChoice from "./components/TheRoleChoice.vue";
-import TheTeacherRooms from "./components/TheTeacherRooms.vue";
-import ThePupilRooms from "./components/ThePupilRooms.vue";
-import TheTeacherRoom from "./components/TheTeacherRoom.vue";
 export default {
   components: {
-    HelloWorld,
-    TheWelcome,
     TheRoleChoice,
     TheTeacherRooms,
     ThePupilRooms,
@@ -48,11 +43,7 @@ export default {
     />
   </header>
 
-  <main>
-    <KeepAlive>
-      <component :is="mainView"></component>
-    </KeepAlive>
-  </main>
+  <router-view></router-view>
 </template>
 
 <style>

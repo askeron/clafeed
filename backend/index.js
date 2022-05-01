@@ -118,6 +118,7 @@ expressApp.put('/api/v1/owner/updateRoom', function(req, res, next) {
 //socket
 expressApp.post('/api/v1/owner/createRoomInviteCode', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
+    // TODO check if code is not already used
     const inviteCode = {
         code: ""+util.getRandomIntegerInRange(10_000_000, 99_999_999),
         roomid: room.id,
