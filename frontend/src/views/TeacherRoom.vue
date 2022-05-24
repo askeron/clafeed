@@ -34,9 +34,9 @@ const createNewRoom = async () => {
 <template>
   <div>
     <RouterLink to="/teacher">zurück</RouterLink>
-    <HashAvatarImg :hash="roomId"/>
+    
     <p>
-      Raum: {{ roomId.substring(0,8) }}
+      Raum: {{ roomId.substring(0,8) }} <HashAvatarImg :hash="roomId"/>
     </p>
   </div>
 </template>

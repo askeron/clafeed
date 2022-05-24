@@ -4,26 +4,33 @@ import HelloWorld from '@/components/HelloWorld.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <!--
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-    -->
-  </header>
-
   <RouterView />
+  <footer>
+    <a href="https://www.clafeed.de/" target="_blank">
+      Clafeed <i>Beta</i>
+    </a>
+    <span class="subtitle"> - the classroom feedback tool</span>
+  </footer>
 </template>
 
 <style>
 @import '@/assets/base.css';
+
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  /*
+  background-color: lightgray;
+  color: black;
+  */
+  text-align: center;
+}
+
+.subtitle {
+  font-size: x-small;
+}
 
 #app {
   max-width: 1280px;
