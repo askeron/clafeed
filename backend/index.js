@@ -32,8 +32,8 @@ overwriteServerSecretEnvVariableAndNodeArguements() // if possible
 const data = {
     rooms: [
         {
-            id: "0000814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77", // crypto random, first 4 chars reserved for later use e.g. server number
-            secret: secretGenerator.generateRoomSecret("0000814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77"),
+            id: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000", // crypto random, first 4 chars reserved for later use e.g. server number
+            secret: secretGenerator.generateRoomSecret("814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000"),
             publicKey: "8672814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77", // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
             name: "Klasse 7a Physik bei Herrn Kuhlen",
             currentlyOpen: true,
@@ -65,7 +65,7 @@ const data = {
     inviteCodes: [
         {
             code: "82352924",
-            roomid: "0000814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77",
+            roomid: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000",
             maxLifetimeDate: Date.now() + serverEnv.inviteCodeLifetimeMillis,
         },
     ],
@@ -135,8 +135,8 @@ expressApp.post('/api/v1/attendee/useInviteCode', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
-        const roomDeviceIdPrefix = "0000" // first 4 chars reserved for later use
-        const roomDeviceId = roomDeviceIdPrefix + util.getCryptoRandomHexChars(64 - roomDeviceIdPrefix.length)
+        const roomDeviceIdSuffix = "0000" // last 4 chars reserved for later use
+        const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
 
         const joinRequest = {
             roomDeviceId,
@@ -164,8 +164,8 @@ expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
-        const roomDeviceIdPrefix = "0000" // first 4 chars reserved for later use
-        const roomDeviceId = roomDeviceIdPrefix + util.getCryptoRandomHexChars(64 - roomDeviceIdPrefix.length)
+        const roomDeviceIdSuffix = "0000" // first 4 chars reserved for later use
+        const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
 
         const joinRequest = {
             roomDeviceId,
@@ -189,8 +189,8 @@ expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
 })
 
 function createNewRoom() {
-    const roomIdPrefix = "0000" // first 4 chars reserved for later use e.g. server number
-    const id = roomIdPrefix + util.getCryptoRandomHexChars(64 - roomIdPrefix.length)
+    const roomIdSuffix = "0000" // first 4 chars reserved for later use e.g. server number
+    const id = util.getCryptoRandomHexChars(64 - roomIdSuffix.length) + roomIdSuffix
     const room = {
         id,
         secret: secretGenerator.generateRoomSecret(id),
@@ -263,4 +263,4 @@ function findInviteCode(code) {
 
 
 expressServer.listen(8080)
-console.log("lorgo started")
+console.log("clafeed started")
