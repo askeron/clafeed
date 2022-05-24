@@ -7,9 +7,11 @@ const { checkIdFormat, clearArray } = require('./util.js')
 const expressApp = express()
 const expressServer = require('http').createServer(expressApp)
 const webSocketServer = new (require('ws')).Server({ server: expressServer })
+const historyMiddleware = require('connect-history-api-fallback')
 const cors = require('cors')
-expressApp.use(cors())
-expressApp.use(express.static('static'))
+expressApp.use("/api/", cors())
+expressApp.use(historyMiddleware()) // redirects to index.html
+expressApp.use(express.static('frontend-dist'))
 expressApp.use(express.json());
 
 const serverEnv = {
@@ -20,7 +22,6 @@ const serverEnv = {
     millisAfterLastRoomOwnerKeepAliveToAutoColeTheRoom: 60*60*1000,
     devMode: true,
 }
-
 
 const secretGenerator = require("./secret-generator.js")(serverEnv.serverSecret)
 serverEnv.serverSecret = null
@@ -92,7 +93,8 @@ expressApp.get('/api/v1/devMode/data', function(req, res, next) {
 })
 
 expressApp.post('/api/v1/owner/createNewRoom', function(req, res, next) {
-    const room = createNewRoom()
+    const name = util.checkStringWithMaxLength(req.body.name, 200)
+    const room = createNewRoom(name)
     res.json({
         id: room.id,
         secret: room.secret,
@@ -135,7 +137,7 @@ expressApp.post('/api/v1/attendee/useInviteCode', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
-        const roomDeviceIdSuffix = "0000" // last 4 chars reserved for later use
+        const roomDeviceIdSuffix = "0" // last char reserved for later use
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
 
         const joinRequest = {
@@ -164,7 +166,7 @@ expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
-        const roomDeviceIdSuffix = "0000" // first 4 chars reserved for later use
+        const roomDeviceIdSuffix = "0" // last char reserved for later use
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
 
         const joinRequest = {
@@ -188,15 +190,15 @@ expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
     util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
 })
 
-function createNewRoom() {
-    const roomIdSuffix = "0000" // first 4 chars reserved for later use e.g. server number
+function createNewRoom(name) {
+    const roomIdSuffix = "0" // last char reserved for later use e.g. server number
     const id = util.getCryptoRandomHexChars(64 - roomIdSuffix.length) + roomIdSuffix
     const room = {
         id,
         secret: secretGenerator.generateRoomSecret(id),
         // secret errechnet aus sha(hmac(id+serversecret+"secret"))
         publicKey: null, // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
-        name: "Neuer Raum",
+        name,
         currentlyOpen: false,
         lastKeepAliveFromRoomOwner: Date.now(),
         attendeeId: [
@@ -258,9 +260,6 @@ function findInviteCode(code) {
     removeOldInviteCodes()
     return data.inviteCodes.find(x => x.code === code)
 }
-
-
-
 
 expressServer.listen(8080)
 console.log("clafeed started")

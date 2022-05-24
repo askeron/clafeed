@@ -5,38 +5,13 @@ import HashAvatarImg from '@/components/HashAvatarImg.vue'
 
 const route = useRoute()
 const roomId = computed(() => route.params.roomId)
-
-const createNewRoom = async () => {
-  const response = await fetch('http://localhost:8080/api/v1/owner/createNewRoom', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json', 
-    },
-//    body: JSON.stringify({
-//      name: this.enteredName,
-//      rating: this.chosenRating,
-//    }),
-  })
-  if (response.ok) {
-    const result = await response.json()
-    const { id, secret } = result
-    rooms.value.push({
-      id,
-      secret,
-      name: result.name,
-      currentlyOpen: false,
-      inviteCodes: [],
-    })
-  }
-}
 </script>
 
 <template>
   <div>
     <RouterLink to="/teacher">zurück</RouterLink>
-    
     <p>
-      Raum: {{ roomId.substring(0,8) }} <HashAvatarImg :hash="roomId"/>
+      Raum: {{ roomId.substring(0,4) }} <HashAvatarImg :hash="roomId"/>
     </p>
   </div>
 </template>
