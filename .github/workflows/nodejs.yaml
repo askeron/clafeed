@@ -24,10 +24,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: cd frontend
-    - run: npm i
-    - run: npm run build --if-present
-    - run: npm test
+    - working-directory: ./frontend
+      run: npm i
+    - working-directory: ./frontend
+      run: npm run build --if-present
+    - working-directory: ./frontend
+      run: npm test
       
   docker:
     if: github.ref == 'refs/heads/master'
@@ -39,12 +41,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16.x
-    - run: cd frontend
-    - run: npm i
-    - run: npm run build
-    - run: cd ..
+    - working-directory: ./frontend
+      run: npm i
+    - working-directory: ./frontend
+      run: npm run build
     - run: mv frontend/dist backend/frontend-dist
-    - run: cd backend
     - uses: docker/build-push-action@v1
       with:
         username: askeron
