@@ -43,6 +43,11 @@ jobs:
     needs: [build]
     steps:
     - uses: actions/checkout@v2
+    - uses: jacobtomlinson/gha-find-replace@v2
+      with:
+        find: "http://localhost:8080/"
+        replace: "/"
+        regex: false
     - name: Use Node.js 16.x
       uses: actions/setup-node@v1
       with:
