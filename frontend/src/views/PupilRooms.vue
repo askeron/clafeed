@@ -6,7 +6,7 @@ import ThePupilMainTabs from '@/components/ThePupilMainTabs.vue'
 <template>
   <div class="about">
     <ThePupilMainTabs :activeIndex="0"/>
-    <h1>This is the pupil room overview</h1>
+    <h1>Das hier ist die Raumübersicht für Schüler</h1>
   </div>
 </template>
 
