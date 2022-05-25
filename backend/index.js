@@ -3,7 +3,7 @@ const { also } = util
 
 const express = require('express')
 const { checkIdFormat, clearArray } = require('./util.js')
-//const cron = require('node-cron');
+const cron = require('node-cron');
 const expressApp = express()
 const expressServer = require('http').createServer(expressApp)
 const webSocketServer = new (require('ws')).Server({ server: expressServer })
@@ -266,7 +266,14 @@ cron.schedule('0 * * * * *', () => {
     data.inviteCodes = data.inviteCodes.filter(x => x.maxLifetimeDate > Date.now())
 })
 */
-    
+
+cron.schedule('0 0 23 * * *', () => {
+    // remove all data in the night
+    data.rooms = []
+    data.inviteCodes = []
+    // TODO: delete files
+})
+
 function removeOldInviteCodes() {
     data.inviteCodes = data.inviteCodes.filter(x => x.maxLifetimeDate > Date.now())
 }
