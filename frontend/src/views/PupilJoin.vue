@@ -5,7 +5,7 @@ import ThePupilMainTabs from '@/components/ThePupilMainTabs.vue'
 <template>
   <div class="about">
     <ThePupilMainTabs :activeIndex="1"/>
-    <h1>This is the join screen of a pupil</h1>
+    <h1>Das hier ist der "beitretten"-Bildschirm der Schüler</h1>
   </div>
 </template>
 
