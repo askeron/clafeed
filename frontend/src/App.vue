@@ -1,9 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from '@/components/HelloWorld.vue'
+import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
 </script>
 
 <template>
+  <!-- <DetectMultipleInstances /> -->
   <RouterView />
   <footer>
     <a href="https://www.clafeed.de/" target="_blank">
