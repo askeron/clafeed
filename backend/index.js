@@ -10,7 +10,22 @@ const webSocketServer = new (require('ws')).Server({ server: expressServer })
 const historyMiddleware = require('connect-history-api-fallback')
 const cors = require('cors')
 expressApp.use("/api/", cors())
-expressApp.use(historyMiddleware()) // redirects to index.html
+expressApp.use(historyMiddleware({
+  rewrites: [
+    {
+        from: /^\/api\/.*$/,
+        to: function(context) {
+          return context.parsedUrl.pathname;
+        }
+      },
+      {
+        from: /^\/statistics$/,
+        to: function(context) {
+          return context.parsedUrl.pathname;
+        }
+      },
+  ]
+})) // redirects to index.html
 expressApp.use(express.static('frontend-dist'))
 expressApp.use(express.json());
 
