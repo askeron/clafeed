@@ -57,6 +57,7 @@ jobs:
     - working-directory: ./frontend
       run: npm run build
     - run: mv frontend/dist backend/frontend-dist
+    - run: cp frontend/multiple-instances.html backend/frontend-dist/
     - uses: docker/build-push-action@v1
       with:
         username: askeron
