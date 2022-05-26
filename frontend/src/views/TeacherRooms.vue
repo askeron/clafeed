@@ -2,9 +2,9 @@
 import { reactive, watch, computed } from "vue"
 import { RouterLink, RouterView } from 'vue-router'
 import HashAvatarImg from '@/components/HashAvatarImg.vue'
-import { useTeacherStoredRoomsStore } from '@/stores/teacherStoredRooms'
+import { useTeacherStore } from '@/stores/teacher'
 
-const teacherStoredRoomsStore = useTeacherStoredRoomsStore()
+const teacherStore = useTeacherStore()
 
 const createNewRoom = async () => {
   const name = prompt("Wie soll der Raum heißen", "Deutsch 7a bei Herrn Mustermann")
@@ -27,7 +27,7 @@ const createNewRoom = async () => {
   if (response.ok) {
     const result = await response.json()
     const { id, secret } = result
-    teacherStoredRoomsStore.addRoom({
+    teacherStore.addRoom({
       id,
       secret,
       name: result.name,
@@ -37,7 +37,7 @@ const createNewRoom = async () => {
 
 const deleteRoom = (id, name) => {
   if (confirm(`Den Raum "${name}" wirklich löschen?`)) {
-    teacherStoredRoomsStore.deleteRoom(id)
+    teacherStore.deleteRoom(id)
   }
 }
 </script>
@@ -48,7 +48,7 @@ const deleteRoom = (id, name) => {
       Lehrer-Räume:
     </p>
     <ul>
-      <li v-for="room in teacherStoredRoomsStore.rooms" :key="room.id">
+      <li v-for="room in teacherStore.rooms" :key="room.id">
         <RouterLink :to="'/teacher/room/'+room.id"><HashAvatarImg :hash="room.id"/> {{room.name}} - {{ false ? "offen" : "geschlossen" }}</RouterLink>
         - <a @click.prevent="deleteRoom(room.id, room.name)">löschen</a>
       </li>

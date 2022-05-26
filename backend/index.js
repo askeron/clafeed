@@ -81,7 +81,7 @@ const data = {
     inviteCodes: [
         {
             code: "82352924",
-            roomid: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000",
+            roomId: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000",
             maxLifetimeDate: Date.now() + serverEnv.inviteCodeLifetimeMillis,
         },
     ],
@@ -117,14 +117,19 @@ expressApp.post('/api/v1/owner/createNewRoom', function(req, res, next) {
     })
 })
 
-//socket
+expressApp.post('/api/v1/owner/deleteRoom', function(req, res, next) {
+    const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
+    data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
+    data.rooms = data.rooms.filter(x => x.Id !== room.id)
+    res.json({})
+})
+
 expressApp.post('/api/v1/owner/keepalive', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
     room.lastKeepAliveFromRoomOwner = Date.now()
     res.json({})
 })
 
-//socket
 expressApp.put('/api/v1/owner/updateRoom', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
     util.alsoNonNull(req.body.name, x => room.name = util.checkStringWithMaxLength(x, 200))
@@ -132,13 +137,16 @@ expressApp.put('/api/v1/owner/updateRoom', function(req, res, next) {
     res.json({})
 })
 
-//socket
 expressApp.post('/api/v1/owner/createRoomInviteCode', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
-    // TODO check if code is not already used
+    data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
+    let newCode
+    do {
+        newCode = ""+util.getRandomIntegerInRange(10_000_000, 99_999_999)
+    } while (data.inviteCodes.filter(x => x.code !== newCode).length != 0) // regerate code until unused is found
     const inviteCode = {
-        code: ""+util.getRandomIntegerInRange(10_000_000, 99_999_999),
-        roomid: room.id,
+        code: newCode,
+        roomId: room.id,
         maxLifetimeDate: Date.now() + serverEnv.inviteCodeLifetimeMillis,
     }
     data.inviteCodes.push(inviteCode)
