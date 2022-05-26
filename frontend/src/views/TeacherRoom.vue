@@ -47,7 +47,7 @@ onMounted(() => {
             <div v-else>
               Raum geschlossen - <button @click.prevent="useOpenRoom(roomId)">öffnen</button>
             </div>
-            <h2>Einladungcode</h2>
+            <h2>Einladungscode</h2>
             <div v-if="room.inviteCode && room.inviteCodeValidUntil > nowState">
               <h3>{{ room.inviteCode }}</h3>
               <p>noch gültig für {{ getSecondsLeftString(room.inviteCodeValidUntil) }}</p>
