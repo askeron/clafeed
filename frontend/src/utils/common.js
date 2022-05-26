@@ -27,3 +27,9 @@ export function getTimeStringForSeconds(seconds) {
   }
 }
 
+export function getArraySortedBy(array, mapFunction) {
+  const result = array.map(x => x)
+  result.sort((a, b) => mapFunction(a) > mapFunction(b) ? 1 : -1)
+  return result
+}
+

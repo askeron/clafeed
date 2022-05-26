@@ -73,8 +73,5 @@ onMounted(() => {
   
 </template>
 
-<style>
-.active {
-  font-weight: bold;
-}
+<style scoped>
 </style>

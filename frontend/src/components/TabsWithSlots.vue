@@ -16,14 +16,14 @@ const count = computed(() => displayNames.value.length)
 <template>
   <div>
     <div class="tabs">
-      <a :class="{ active: activeIndex === 0 }" @click.prevent="activeIndex = 0">{{ displayNames[0] }}</a>
-      <span v-if="count > 1"> | <a :class="{ active: activeIndex === 1 }" @click.prevent="activeIndex = 1">{{ displayNames[1] }}</a></span>
-      <span v-if="count > 2"> | <a :class="{ active: activeIndex === 2 }" @click.prevent="activeIndex = 2">{{ displayNames[2] }}</a></span>
-      <span v-if="count > 3"> | <a :class="{ active: activeIndex === 3 }" @click.prevent="activeIndex = 3">{{ displayNames[3] }}</a></span>
-      <span v-if="count > 4"> | <a :class="{ active: activeIndex === 4 }" @click.prevent="activeIndex = 4">{{ displayNames[4] }}</a></span>
-      <span v-if="count > 5"> | <a :class="{ active: activeIndex === 5 }" @click.prevent="activeIndex = 5">{{ displayNames[5] }}</a></span>
-      <span v-if="count > 6"> | <a :class="{ active: activeIndex === 6 }" @click.prevent="activeIndex = 6">{{ displayNames[6] }}</a></span>
-      <span v-if="count > 7"> | <a :class="{ active: activeIndex === 7 }" @click.prevent="activeIndex = 7">{{ displayNames[7] }}</a></span>
+      <span v-if="count > 0">   <a :class="{ active: activeIndex === 0 }" href="#" @click.prevent="activeIndex = 0">{{ displayNames[0] }}</a></span>
+      <span v-if="count > 1"> | <a :class="{ active: activeIndex === 1 }" href="#" @click.prevent="activeIndex = 1">{{ displayNames[1] }}</a></span>
+      <span v-if="count > 2"> | <a :class="{ active: activeIndex === 2 }" href="#" @click.prevent="activeIndex = 2">{{ displayNames[2] }}</a></span>
+      <span v-if="count > 3"> | <a :class="{ active: activeIndex === 3 }" href="#" @click.prevent="activeIndex = 3">{{ displayNames[3] }}</a></span>
+      <span v-if="count > 4"> | <a :class="{ active: activeIndex === 4 }" href="#" @click.prevent="activeIndex = 4">{{ displayNames[4] }}</a></span>
+      <span v-if="count > 5"> | <a :class="{ active: activeIndex === 5 }" href="#" @click.prevent="activeIndex = 5">{{ displayNames[5] }}</a></span>
+      <span v-if="count > 6"> | <a :class="{ active: activeIndex === 6 }" href="#" @click.prevent="activeIndex = 6">{{ displayNames[6] }}</a></span>
+      <span v-if="count > 7"> | <a :class="{ active: activeIndex === 7 }" href="#" @click.prevent="activeIndex = 7">{{ displayNames[7] }}</a></span>
     </div>
     <div v-if="activeIndex === 0">
       <slot name="content1"/>
