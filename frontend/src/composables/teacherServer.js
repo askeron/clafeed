@@ -15,7 +15,7 @@ async function jsonPost(path, body) {
 }
 
 export async function useCreateRoom(name) {
-  const { id, secret } = await jsonPost('/api/v1/owner/createNewRoom', {
+  const { id, secret } = await jsonPost('/api/v1/teacher/createNewRoom', {
     name,
   })
   const teacherStore = useTeacherStore()
@@ -27,7 +27,7 @@ export async function useCreateRoom(name) {
 }
 
 export async function useDeleteRoom(id) {
-  await jsonPost('/api/v1/owner/deleteRoom', {
+  await jsonPost('/api/v1/teacher/deleteRoom', {
     id,
     secret,
   })
@@ -37,7 +37,7 @@ export async function useDeleteRoom(id) {
 export async function useRenameRoom({id, name}) {
   const teacherStore = useTeacherStore()
   const { secret } = teacherStore.getRoomById(id)
-  await jsonPost('/api/v1/owner/updateRoom', {
+  await jsonPost('/api/v1/teacher/updateRoom', {
     id,
     secret,
     name,
@@ -48,7 +48,7 @@ export async function useRenameRoom({id, name}) {
 export async function useOpenRoom(id) {
   const teacherStore = useTeacherStore()
   const { secret, name } = teacherStore.getRoomById(id)
-  await jsonPost('/api/v1/owner/updateRoom', {
+  await jsonPost('/api/v1/teacher/updateRoom', {
     id,
     secret,
     name,
@@ -60,7 +60,7 @@ export async function useOpenRoom(id) {
 export async function useCloseRoom(id) {
   const teacherStore = useTeacherStore()
   const { secret, name } = teacherStore.getRoomById(id)
-  await jsonPost('/api/v1/owner/updateRoom', {
+  await jsonPost('/api/v1/teacher/updateRoom', {
     id,
     secret,
     name,
@@ -72,7 +72,7 @@ export async function useCloseRoom(id) {
 export async function useUpdateRoomFromStore(id) {
   const teacherStore = useTeacherStore()
   const { secret, name, currentlyOpen } = teacherStore.getRoomById(id)
-  await jsonPost('/api/v1/owner/updateRoom', {
+  await jsonPost('/api/v1/teacher/updateRoom', {
     id,
     secret,
     name,
@@ -83,7 +83,7 @@ export async function useUpdateRoomFromStore(id) {
 export async function useCreateInviteCode(roomId) {
   const teacherStore = useTeacherStore()
   const { secret: roomSecret } = teacherStore.getRoomById(roomId)
-  const { code, lifetimeMillis } = await jsonPost('/api/v1/owner/createInviteCode', {
+  const { code, lifetimeMillis } = await jsonPost('/api/v1/teacher/createInviteCode', {
     roomId,
     roomSecret,
   })

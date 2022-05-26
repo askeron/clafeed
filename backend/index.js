@@ -35,7 +35,7 @@ const serverEnv = {
     joinRequestLifetimeMillis: 10*60*1000,
     serverSecret: "6ce4732694d2eb3b139d87a9fc342d7910b2e163313088417b6effda54e9dd2e",
     maxOpenedRooms: 250, // if exceed no Room can be opened at the moment, man kann wohl nur 65k, aber realistisch nur 20k Websockets pro IP betreiben (bei 40 Geräten pro Raum, wären das maximal 500 Raum und wegen Puffer halt die hälfte)
-    millisAfterLastRoomOwnerKeepAliveToAutoColeTheRoom: 60*60*1000,
+    millisAfterLastTeacherKeepAliveToAutoColeTheRoom: 60*60*1000,
     devMode: true,
 }
 
@@ -54,7 +54,7 @@ const data = {
             publicKey: "8672814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77", // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
             name: "Klasse 7a Physik bei Herrn Kuhlen",
             currentlyOpen: true,
-            lastKeepAliveFromRoomOwner: 1647559031960,
+            lastKeepAliveFromTeacher: 1647559031960,
             allowedRoomDeviceId: [
                 "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997",
                 "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
@@ -100,7 +100,7 @@ expressApp.get('/api/v1/devMode/data', function(req, res, next) {
     res.json(data)
 })
 
-expressApp.post('/api/v1/owner/createNewRoom', function(req, res, next) {
+expressApp.post('/api/v1/teacher/createNewRoom', function(req, res, next) {
     const name = util.checkStringWithMaxLength(req.body.name, 200)
     const room = createNewRoom(name)
     res.json({
@@ -109,7 +109,7 @@ expressApp.post('/api/v1/owner/createNewRoom', function(req, res, next) {
     })
 })
 
-expressApp.post('/api/v1/owner/deleteRoom', function(req, res, next) {
+expressApp.post('/api/v1/teacher/deleteRoom', function(req, res, next) {
     const room = findRoomAndCheckSecretOrNull(req.body.id, req.body.secret)
     if (room) {
         data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
@@ -118,20 +118,20 @@ expressApp.post('/api/v1/owner/deleteRoom', function(req, res, next) {
     res.json({})
 })
 
-expressApp.post('/api/v1/owner/keepalive', function(req, res, next) {
+expressApp.post('/api/v1/teacher/keepalive', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
-    room.lastKeepAliveFromRoomOwner = Date.now()
+    room.lastKeepAliveFromTeacher = Date.now()
     res.json({})
 })
 
-expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
+expressApp.post('/api/v1/teacher/updateRoom', function(req, res, next) {
     let room = findRoomAndCheckSecretOrNull(req.body.id, req.body.secret)
     if (!room) {
         room = {
             id: req.body.id,
             secret: req.body.secret,
             currentlyOpen: false,
-            lastKeepAliveFromRoomOwner: Date.now(),
+            lastKeepAliveFromTeacher: Date.now(),
             allowedRoomDeviceId: [],
         }
         data.rooms.push(room)
@@ -142,11 +142,11 @@ expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
     room.name = newRoomName
     room.currentlyOpen = newCurrentlyOpen
     room.allowedRoomDeviceId = newAllowedRoomDeviceId
-    room.lastKeepAliveFromRoomOwner = Date.now()
+    room.lastKeepAliveFromTeacher = Date.now()
     res.json({})
 })
 
-expressApp.post('/api/v1/owner/createInviteCode', function(req, res, next) {
+expressApp.post('/api/v1/teacher/createInviteCode', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
     data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
     let newCode
@@ -211,7 +211,7 @@ function createNewRoom(name) {
         publicKey: null, // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
         name,
         currentlyOpen: false,
-        lastKeepAliveFromRoomOwner: Date.now(),
+        lastKeepAliveFromTeacher: Date.now(),
         allowedRoomDeviceId: [
         ],
         allowedDevices: [
