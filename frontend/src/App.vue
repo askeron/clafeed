@@ -10,7 +10,7 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
     <a href="https://www.clafeed.de/" target="_blank">
       Clafeed <i>Beta</i>
     </a>
-    <span class="subtitle"> - the classroom feedback tool</span>
+    <span class="subtitle"> - das datensparsame classroom feedback tool</span>
   </footer>
 </template>
 
