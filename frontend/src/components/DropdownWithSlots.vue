@@ -9,10 +9,6 @@ const props = defineProps({
   },
 })
 
-const onChange = (event) => {
-  activeIndex.value = parseInt(event.target.value)
-}
-
 </script>
 
 <template>
