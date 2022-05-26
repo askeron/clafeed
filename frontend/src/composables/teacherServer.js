@@ -69,6 +69,17 @@ export async function useCloseRoom(id) {
   teacherStore.closeRoom(id)
 }
 
+export async function useUpdateRoomFromStore(id) {
+  const teacherStore = useTeacherStore()
+  const { secret, name, currentlyOpen } = teacherStore.getRoomById(id)
+  await jsonPost('/api/v1/owner/updateRoom', {
+    id,
+    secret,
+    name,
+    currentlyOpen,
+  })
+}
+
 export async function useCreateInviteCode(roomId) {
   const teacherStore = useTeacherStore()
   const { secret: roomSecret } = teacherStore.getRoomById(roomId)

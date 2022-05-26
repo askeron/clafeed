@@ -29,6 +29,7 @@ expressApp.use(historyMiddleware({
 expressApp.use(express.static('frontend-dist'))
 expressApp.use(express.json());
 
+
 const serverEnv = {
     inviteCodeLifetimeMillis: 10*60*1000,
     joinRequestLifetimeMillis: 10*60*1000,
@@ -139,6 +140,7 @@ expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
             secret: req.body.secret,
             currentlyOpen: false,
         }
+        data.rooms.push(room)
     }
     room.name = util.checkStringWithMaxLength(req.body.name, 200)
     util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))

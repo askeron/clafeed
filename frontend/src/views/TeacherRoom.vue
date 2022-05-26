@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { RouterLink, useRoute } from 'vue-router'
 import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
-import { useCreateInviteCode } from '@/composables/teacherServer'
+import { useUpdateRoomFromStore, useCreateInviteCode } from '@/composables/teacherServer'
 import { getTimeStringForSeconds } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
@@ -20,6 +20,10 @@ const getSecondsLeftString = (validUntil) => {
   const secondsLeft = Math.round((validUntil - Date.now())/1000)
   return getTimeStringForSeconds(secondsLeft)
 }
+
+onMounted(() => {
+  useUpdateRoomFromStore(roomId.value)
+})
 
 </script>
 
