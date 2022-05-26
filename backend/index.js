@@ -55,28 +55,11 @@ const data = {
             name: "Klasse 7a Physik bei Herrn Kuhlen",
             currentlyOpen: true,
             lastKeepAliveFromRoomOwner: 1647559031960,
-            attendeeId: [
+            allowedRoomDeviceId: [
                 "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997",
                 "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
                 "107e768f183deb80080fe43df504bef6333516bd5ee7cf7af0e4be201f284586",
             ],
-            allowedDevices: [
-                {
-                    roomDeviceId: "5317944480cb7e9b65acb95e7d45a4fc9415e7fe5e3a21586621a4de964a5884", // crypto random
-                    attendeeId: "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997", // immer nur ein RoomDeviceId pro Name zugelassen (fachliche Anforderung)
-                    // identify code (zum mündlichen bestätigen) sind die ersten 4 Stellen von roomDeviceId
-                },
-                {
-                    roomDeviceId: "6cb3c0b5cb95952cb79b462b5fe5a4a5ae7e615ae68172540361f6aaeda68076",
-                    attendeeId: "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
-                },
-            ],
-            joinRequests: [
-                {
-                    roomDeviceId: "d28df0e8d2cbd14cbba6730a57f71f0eec7dee9066fdae686a6a5ae7b196bf7b",
-                    suggestedName: "Sven",
-                },
-            ]
         },
     ],
     inviteCodes: [
@@ -86,6 +69,15 @@ const data = {
             maxLifetimeDate: Date.now() + serverEnv.inviteCodeLifetimeMillis,
         },
     ],
+    joinRequests: [
+        {
+            roomId: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000",
+            roomDeviceId: "d28df0e8d2cbd14cbba6730a57f71f0eec7dee9066fdae686a6a5ae7b196bf7b",
+            roomDeviceSecret: "841d21ec38da65e924359a80301de92c188bad0373330bd15a0925058c0b02ef",
+            suggestedPupilName: "Sven",
+            maxLifetimeDate: Date.now() + serverEnv.joinRequestLifetimeMillis,
+        },
+    ]
 }
 
 
@@ -139,11 +131,17 @@ expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
             id: req.body.id,
             secret: req.body.secret,
             currentlyOpen: false,
+            lastKeepAliveFromRoomOwner: Date.now(),
+            allowedRoomDeviceId: [],
         }
         data.rooms.push(room)
     }
-    room.name = util.checkStringWithMaxLength(req.body.name, 200)
-    util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
+    const newRoomName = util.checkStringWithMaxLength(req.body.name, 200)
+    const newCurrentlyOpen = req.body.currentlyOpen !== undefined ? util.checkBoolean(req.body.currentlyOpen) : room.currentlyOpen
+    const newAllowedRoomDeviceId = req.body.allowedRoomDeviceId !== undefined ? util.checkIdArray(req.body.allowedRoomDeviceId) : room.allowedRoomDeviceId
+    room.name = newRoomName
+    room.currentlyOpen = newCurrentlyOpen
+    room.allowedRoomDeviceId = newAllowedRoomDeviceId
     room.lastKeepAliveFromRoomOwner = Date.now()
     res.json({})
 })
@@ -168,61 +166,39 @@ expressApp.post('/api/v1/owner/createInviteCode', function(req, res, next) {
     })
 })
 
-expressApp.post('/api/v1/attendee/useInviteCode', function(req, res, next) {
+expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
+        const { id: roomId, name: roomName } = findRoom(inviteCode.roomid)
+
         const roomDeviceIdSuffix = "0" // last char reserved for later use
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
+        const roomDeviceSecret = generateRoomDeviceSecret(roomId, roomDeviceId)
 
         const joinRequest = {
+            roomId,
+            roomName,
             roomDeviceId,
-            suggestedName: util.checkStringWithMaxLength(req.body.suggestedName, 200),
+            roomDeviceSecret,
+            suggestedPupilName: util.checkStringWithMaxLength(req.body.suggestedPupilName, 200),
             maxLifetimeDate: Date.now() + serverEnv.joinRequestLifetimeMillis,
         }
         
-        const room = findRoom(inviteCode.roomid)
         room.joinRequests.push(joinRequest)
 
         res.json({
-            roomDeviceId: joinRequest.roomDeviceId,
-            roomDeviceSecret: generateRoomDeviceSecret(joinRequest.roomDeviceId),
-        })
-    } else {
-        res.status(404).send('could not find invite code')
-    }
-
-    util.alsoNonNull(req.body.name, x => room.name = util.checkStringWithMaxLength(x, 200))
-    util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
-})
-
-//socket
-expressApp.post('/api/v1/owner/addAttendee', function(req, res, next) {
-    const inviteCode = findInviteCode(req.body.code)
-
-    if (inviteCode) {
-        const roomDeviceIdSuffix = "0" // last char reserved for later use
-        const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
-
-        const joinRequest = {
+            found: true,
+            roomId,
             roomDeviceId,
-            suggestedName: util.checkStringWithMaxLength(req.body.suggestedName, 200),
-            maxLifetimeDate: Date.now() + serverEnv.joinRequestLifetimeMillis,
-        }
-        
-        const room = findRoom(inviteCode.roomid)
-        room.joinRequests.push(joinRequest)
-
-        res.json({
-            roomDeviceId: joinRequest.roomDeviceId,
-            roomDeviceSecret: generateRoomDeviceSecret(joinRequest.roomDeviceId),
+            roomDeviceSecret,
+            lifetimeMillis: serverEnv.joinRequestLifetimeMillis,
         })
     } else {
-        res.status(404).send('could not find invite code')
+        res.json({
+            found: false,
+        })
     }
-
-    util.alsoNonNull(req.body.name, x => room.name = util.checkStringWithMaxLength(x, 200))
-    util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
 })
 
 function createNewRoom(name) {
@@ -236,7 +212,7 @@ function createNewRoom(name) {
         name,
         currentlyOpen: false,
         lastKeepAliveFromRoomOwner: Date.now(),
-        attendeeId: [
+        allowedRoomDeviceId: [
         ],
         allowedDevices: [
         ]

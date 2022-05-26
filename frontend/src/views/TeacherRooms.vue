@@ -5,6 +5,7 @@ import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import { useCreateRoom, useDeleteRoom, useRenameRoom, useOpenRoom, useCloseRoom } from '@/composables/teacherServer'
 import { useTeacherStore } from '@/stores/teacher'
 import { getArraySortedBy } from '@/utils/common'
+import { notify } from "@kyvg/vue3-notification";
 
 const teacherStore = useTeacherStore()
 
@@ -23,14 +24,18 @@ const createNewRoom = async () => {
   useCreateRoom(name)
 }
 
-const deleteRoom = (id) => {
+const deleteRoom = (id, name) => {
   if (confirm(`Den Raum "${name}" wirklich löschen?`)) {
     useDeleteRoom(id)
   }
+  notify({
+    title: "Raum gelöscht",
+    text: `Der Raum "${name}" wurde gelöscht.`,
+  })
 }
 
-const renameRoom = (id) => {
-  const name = prompt("Wie soll der Raum heißen", "Deutsch 7a bei Herrn Mustermann")
+const renameRoom = (id, oldName) => {
+  const name = prompt("Wie soll der Raum heißen", oldName)
   if (!name || name.length == 0) {
     return
   }
@@ -70,8 +75,8 @@ const renameRoom = (id) => {
         <span v-else>
           - <a href="#" @click.prevent="useOpenRoom(room.id)">geschlossen</a>
         </span>
-        - <a href="#" @click.prevent="renameRoom(room.id)">umbenennen</a>
-        - <a href="#" @click.prevent="deleteRoom(room.id)">löschen</a>
+        - <a href="#" @click.prevent="renameRoom(room.id, room.name)">umbenennen</a>
+        - <a href="#" @click.prevent="deleteRoom(room.id, room.name)">löschen</a>
       </li>
     </transition-group>
     <br/>

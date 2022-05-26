@@ -6,19 +6,19 @@ module.exports = (serverSecret) => {
         throw "serverSecret must be 64 lowercase hexchars"
     }
 
-    const generateSecret = (secretType, id) => {
-        const hmac = crypto.createHmac('sha256', serverSecret)
-        hmac.update(secretType)
-        hmac.update(id)
-        return hmac.digest("hex")
-    }
-
     return {
         generateRoomSecret(roomId) {
-            return generateSecret("room", roomId)
+            const hmac = crypto.createHmac('sha256', serverSecret)
+            hmac.update("room")
+            hmac.update(roomId)
+            return hmac.digest("hex")
         },
-        generateRoomDeviceSecret(roomDeviceId) {
-            return generateSecret("roomDevice", roomDeviceId)
+        generateRoomDeviceSecret(roomId, roomDeviceId) {
+            const hmac = crypto.createHmac('sha256', serverSecret)
+            hmac.update("roomDevice")
+            hmac.update(roomId)
+            hmac.update(roomDeviceId)
+            return hmac.digest("hex")
         },
     }
 }

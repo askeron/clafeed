@@ -44,6 +44,18 @@ module.exports = {
         }
         return value
     },
+    checkIdArray(value) {
+        if (!(typeof value === "array")) {
+            throw "not an array"
+        }
+        value.forEach(x => {
+            if (!(typeof x === "string")) {
+                throw "array contains non-strings"
+            }
+            checkIdFormat(x)
+        });
+        return value
+    },
     getRandomIntegerInRange(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },

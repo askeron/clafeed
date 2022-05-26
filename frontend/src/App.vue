@@ -5,6 +5,7 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
 
 <template>
   <DetectMultipleInstances />
+  <notifications position="bottom center" />
   <RouterView />
   <footer>
     <a href="https://www.clafeed.de/" target="_blank">
