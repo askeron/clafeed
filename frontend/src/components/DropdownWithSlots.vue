@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue"
-const activeIndex = ref(0)
+const activeIndexString = ref("0")
+const activeIndex = computed(() => parseInt(activeIndexString.value))
 
 const props = defineProps({
   displayNames: {
@@ -17,7 +18,7 @@ const onChange = (event) => {
 <template>
   <div>
     <div>
-      <select @change="onChange($event)">
+      <select v-model="activeIndexString">
         <option v-for="(displayName, index) in displayNames" :key="index" :value="index">{{ displayName }}</option>
       </select>
     </div>
