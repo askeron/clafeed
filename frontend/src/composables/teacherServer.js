@@ -1,7 +1,5 @@
 import { useTeacherStore } from '@/stores/teacher'
 
-const teacherStore = useTeacherStore()
-
 async function jsonPost(path, body) {
   const response = await fetch(`http://localhost:8080${path}`, {
     method: 'POST',
@@ -20,9 +18,53 @@ export async function useCreateRoom(name) {
   const { id, secret } = await jsonPost('/api/v1/owner/createNewRoom', {
     name,
   })
-  teacherRoomsStore.addRoom({
+  const teacherStore = useTeacherStore()
+  teacherStore.addRoom({
     id,
     secret,
-    name: result.name,
+    name,
   })
+}
+
+export async function useDeleteRoom(id) {
+  await jsonPost('/api/v1/owner/deleteRoom', {
+    id,
+    secret,
+  })
+  teacherStore.deleteRoom(id)
+}
+
+export async function useRenameRoom({id, name}) {
+  const teacherStore = useTeacherStore()
+  const { secret } = teacherStore.getRoomById(id)
+  await jsonPost('/api/v1/owner/updateRoom', {
+    id,
+    secret,
+    name,
+  })
+  teacherStore.renameRoom(id, name)
+}
+
+export async function useOpenRoom(id) {
+  const teacherStore = useTeacherStore()
+  const { secret, name } = teacherStore.getRoomById(id)
+  await jsonPost('/api/v1/owner/updateRoom', {
+    id,
+    secret,
+    name,
+    currentlyOpen: true,
+  })
+  teacherStore.openRoom(id)
+}
+
+export async function useCloseRoom(id) {
+  const teacherStore = useTeacherStore()
+  const { secret, name } = teacherStore.getRoomById(id)
+  await jsonPost('/api/v1/owner/updateRoom', {
+    id,
+    secret,
+    name,
+    currentlyOpen: false,
+  })
+  teacherStore.closeRoom(id)
 }

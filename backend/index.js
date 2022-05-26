@@ -38,7 +38,7 @@ const serverEnv = {
     devMode: true,
 }
 
-const secretGenerator = require("./secret-generator.js")(serverEnv.serverSecret)
+const { generateRoomSecret, generateRoomDeviceSecret } = require("./secret-generator.js")(serverEnv.serverSecret)
 serverEnv.serverSecret = null
 
 /*
@@ -113,14 +113,15 @@ expressApp.post('/api/v1/owner/createNewRoom', function(req, res, next) {
     res.json({
         id: room.id,
         secret: room.secret,
-        name: room.name,
     })
 })
 
 expressApp.post('/api/v1/owner/deleteRoom', function(req, res, next) {
-    const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
-    data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
-    data.rooms = data.rooms.filter(x => x.Id !== room.id)
+    const room = findRoomAndCheckSecretOrNull(req.body.id, req.body.secret)
+    if (room) {
+        data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
+        data.rooms = data.rooms.filter(x => x.Id !== room.id)
+    }
     res.json({})
 })
 
@@ -131,8 +132,8 @@ expressApp.post('/api/v1/owner/keepalive', function(req, res, next) {
 })
 
 expressApp.put('/api/v1/owner/updateRoom', function(req, res, next) {
-    const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
-    util.alsoNonNull(req.body.name, x => room.name = util.checkStringWithMaxLength(x, 200))
+    const room = findRoomAndCheckSecret(req.body.id, req.body.secret)
+    room.name = util.checkStringWithMaxLength(req.body.name, 200)
     util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
     res.json({})
 })
@@ -174,7 +175,7 @@ expressApp.post('/api/v1/attendee/useInviteCode', function(req, res, next) {
 
         res.json({
             roomDeviceId: joinRequest.roomDeviceId,
-            roomDeviceSecret: secretGenerator.generateRoomDeviceSecret(joinRequest.roomDeviceId),
+            roomDeviceSecret: generateRoomDeviceSecret(joinRequest.roomDeviceId),
         })
     } else {
         res.status(404).send('could not find invite code')
@@ -203,7 +204,7 @@ expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
 
         res.json({
             roomDeviceId: joinRequest.roomDeviceId,
-            roomDeviceSecret: secretGenerator.generateRoomDeviceSecret(joinRequest.roomDeviceId),
+            roomDeviceSecret: generateRoomDeviceSecret(joinRequest.roomDeviceId),
         })
     } else {
         res.status(404).send('could not find invite code')
@@ -218,7 +219,7 @@ function createNewRoom(name) {
     const id = util.getCryptoRandomHexChars(64 - roomIdSuffix.length) + roomIdSuffix
     const room = {
         id,
-        secret: secretGenerator.generateRoomSecret(id),
+        secret: generateRoomSecret(id),
         // secret errechnet aus sha(hmac(id+serversecret+"secret"))
         publicKey: null, // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
         name,
@@ -233,24 +234,28 @@ function createNewRoom(name) {
     return room
 }
 
-function findRoom(id) {
+function findRoomOrNull(id) {
     checkIdFormat(id)
-    return checkNotNullish(data.rooms.find(x => x.id === id), "room not found")
+    return data.rooms.find(x => x.id === id)
+}
+
+function findRoom(id) {
+    return checkNotNullish(findRoomOrNull(id), "room not found")
+}
+
+function findRoomAndCheckSecretOrNull(id, secret) {
+    checkRoomSecret(id, secret)
+    return findRoomOrNull(id)
 }
 
 function findRoomAndCheckSecret(id, secret) {
-    checkIdFormat(secret)
-    return also(findRoom(id), x => {
-        if (x.secret !== secret) {
-            throw "wrong roomSecret"
-        }
-    })
+    return checkNotNullish(findRoomAndCheckSecretOrNull(id, secret), "room not found")
 }
 
 function checkRoomSecret(id, secret) {
     checkIdFormat(id)
     checkIdFormat(secret)
-    if (secretGenerator.generateRoomSecret(id) !== secret) {
+    if (generateRoomSecret(id) !== secret) {
         throw "wrong roomSecret"
     }
 }

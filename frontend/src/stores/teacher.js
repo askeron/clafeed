@@ -36,14 +36,18 @@ export const useTeacherStore = defineStore({
     deleteRoom(id) {
       deleteItemFromArray(this.storedRooms, (room) => room.id === id)
     },
+    renameRoom(id, name) {
+      const room = this.storedRooms.find((room) => room.id === id)
+      if (room) {
+        room.name = name
+      }
+    },
     openRoom(id) {
-      // TODO call server
       if (! this.openedRooms.includes(id)) {
         this.openedRooms.push(id)
       }
     },
     closeRoom(id) {
-      // TODO call server
       deleteItemFromArray(this.openedRooms, (x) => x === id)
     },
   }
