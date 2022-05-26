@@ -17,7 +17,7 @@ export const useTeacherStore = defineStore({
           id,
           secret,
           name,
-          opened: state.openedRooms.includes(id),
+          currentlyOpen: state.openedRooms.includes(id),
         }
       })
     },

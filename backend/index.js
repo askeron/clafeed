@@ -49,7 +49,7 @@ const data = {
     rooms: [
         {
             id: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000", // crypto random, first 4 chars reserved for later use e.g. server number
-            secret: secretGenerator.generateRoomSecret("814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000"),
+            secret: generateRoomSecret("814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000"),
             publicKey: "8672814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a77", // format noch ungekannt, aber bestimmt Bytes auf Lehrer client erstellt und zum verschlüsseln der EventFiles gedacht
             name: "Klasse 7a Physik bei Herrn Kuhlen",
             currentlyOpen: true,
@@ -131,10 +131,18 @@ expressApp.post('/api/v1/owner/keepalive', function(req, res, next) {
     res.json({})
 })
 
-expressApp.put('/api/v1/owner/updateRoom', function(req, res, next) {
-    const room = findRoomAndCheckSecret(req.body.id, req.body.secret)
+expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
+    let room = findRoomAndCheckSecretOrNull(req.body.id, req.body.secret)
+    if (!room) {
+        room = {
+            id: req.body.id,
+            secret: req.body.secret,
+            currentlyOpen: false,
+        }
+    }
     room.name = util.checkStringWithMaxLength(req.body.name, 200)
     util.alsoNonNull(req.body.currentlyOpen, x => room.currentlyOpen = util.checkBoolean(x))
+    room.lastKeepAliveFromRoomOwner = Date.now()
     res.json({})
 })
 
@@ -186,7 +194,7 @@ expressApp.post('/api/v1/attendee/useInviteCode', function(req, res, next) {
 })
 
 //socket
-expressApp.put('/api/v1/owner/addAttendee', function(req, res, next) {
+expressApp.post('/api/v1/owner/addAttendee', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.code)
 
     if (inviteCode) {
