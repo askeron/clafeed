@@ -5,7 +5,7 @@ import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
-import { useUpdateRoomFromStore, useCreateInviteCode } from '@/composables/teacherServer'
+import { useUpdateRoomFromStore, useCreateInviteCode, useOpenRoom, useCloseRoom } from '@/composables/teacherServer'
 import { getTimeStringForSeconds } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
@@ -41,7 +41,12 @@ onMounted(() => {
       <template v-slot:content2>
         <DropdownWithSlots :displayNames="['Optionen','Schüler*innen','Austehende Eintritte','Eventdaten']">
           <template v-slot:content1>
-            <p>TODO: Raum geöffnet - hier keine Checkbox</p>
+            <div v-if="room.currentlyOpen">
+              Raum geöffnet - <button @click.prevent="useCloseRoom(roomId)">schliessen</button>
+            </div>
+            <div v-else>
+              Raum geschlossen - <button @click.prevent="useOpenRoom(roomId)">öffnen</button>
+            </div>
             <h2>Einladungcode</h2>
             <div v-if="room.inviteCode && room.inviteCodeValidUntil > nowState">
               <h3>{{ room.inviteCode }}</h3>
