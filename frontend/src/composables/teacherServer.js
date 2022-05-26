@@ -1,7 +1,7 @@
 import { useTeacherStore } from '@/stores/teacher'
 
 async function jsonPost(path, body) {
-  const response = await fetch(`http://localhost:8080${path}`, {
+  const response = await fetch(`http://localhost:8080/${path.substring(1)}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json', 
