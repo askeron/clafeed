@@ -68,3 +68,17 @@ export async function useCloseRoom(id) {
   })
   teacherStore.closeRoom(id)
 }
+
+export async function useCreateInviteCode(roomId) {
+  const teacherStore = useTeacherStore()
+  const { secret: roomSecret } = teacherStore.getRoomById(roomId)
+  const { code, lifetimeMillis } = await jsonPost('/api/v1/owner/createInviteCode', {
+    roomId,
+    roomSecret,
+  })
+  teacherStore.setInviteCode({
+    roomId,
+    code,
+    validUntil: Date.now() + lifetimeMillis
+  })
+}

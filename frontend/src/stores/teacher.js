@@ -12,12 +12,16 @@ export const useTeacherStore = defineStore({
   getters: {
     rooms: (state) => {
       return state.storedRooms.map(storedRoom => {
+        const now = Date.now()
         const { id, secret, name } = storedRoom
+        const inviteCode = state.inviteCodes.find(x => x.roomId == id && x.validUntil >= now)
         return {
           id,
           secret,
           name,
           currentlyOpen: state.openedRooms.includes(id),
+          inviteCode: inviteCode?.code,
+          inviteCodeValidUntil: inviteCode?.validUntil,
         }
       })
     },
@@ -49,6 +53,11 @@ export const useTeacherStore = defineStore({
     },
     closeRoom(id) {
       deleteItemFromArray(this.openedRooms, (x) => x === id)
+    },
+    setInviteCode({roomId, code, validUntil}) {
+      const now = Date.now()
+      deleteItemFromArray(this.inviteCodes, (x) => x.roomId === roomId || x.validUntil < now)
+      this.inviteCodes.push({roomId, code, validUntil})
     },
   }
 })

@@ -5,12 +5,21 @@ import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
+import { useCreateInviteCode } from '@/composables/teacherServer'
+import { getTimeStringForSeconds } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
 
 const route = useRoute()
 const roomId = computed(() => route.params.roomId)
 const room = computed(() => teacherStore.getRoomById(roomId.value))
+const nowState = ref(Date.now())
+setInterval(() => nowState.value = Date.now(), 1000)
+
+const getSecondsLeftString = (validUntil) => {
+  const secondsLeft = Math.round((validUntil - Date.now())/1000)
+  return getTimeStringForSeconds(secondsLeft)
+}
 
 </script>
 
@@ -29,7 +38,15 @@ const room = computed(() => teacherStore.getRoomById(roomId.value))
         <DropdownWithSlots :displayNames="['Optionen','Schüler*innen','Austehende Eintritte','Eventdaten']">
           <template v-slot:content1>
             <p>TODO: Raum geöffnet - hier keine Checkbox</p>
-            <p>TODO: Einladungcode</p>
+            <h2>Einladungcode</h2>
+            <div v-if="room.inviteCode && room.inviteCodeValidUntil > nowState">
+              <h3>{{ room.inviteCode }}</h3>
+              <p>noch gültig für {{ getSecondsLeftString(room.inviteCodeValidUntil) }}</p>
+              <button @click.prevent="useCreateInviteCode(roomId)">neu generieren</button>
+            </div>
+            <div v-else>
+              <button @click.prevent="useCreateInviteCode(roomId)">generieren</button>
+            </div>
           </template>
           <template v-slot:content2>
             <p>TODO: Schüler*innen Liste</p>

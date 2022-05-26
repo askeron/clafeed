@@ -146,13 +146,14 @@ expressApp.post('/api/v1/owner/updateRoom', function(req, res, next) {
     res.json({})
 })
 
-expressApp.post('/api/v1/owner/createRoomInviteCode', function(req, res, next) {
+expressApp.post('/api/v1/owner/createInviteCode', function(req, res, next) {
     const room = findRoomAndCheckSecret(req.body.roomId, req.body.roomSecret)
     data.inviteCodes = data.inviteCodes.filter(x => x.roomId !== room.id)
     let newCode
     do {
         newCode = ""+util.getRandomIntegerInRange(10_000_000, 99_999_999)
-    } while (data.inviteCodes.filter(x => x.code !== newCode).length != 0) // regerate code until unused is found
+        console.log(newCode)
+    } while (data.inviteCodes.filter(x => x.code === newCode).length != 0) // regerate code until unused is found
     const inviteCode = {
         code: newCode,
         roomId: room.id,
