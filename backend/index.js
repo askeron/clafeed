@@ -32,7 +32,7 @@ expressApp.use(express.json());
 
 const serverEnv = {
     inviteCodeLifetimeMillis: 10*60*1000,
-    pendingInviteLifetimeMillis: 10*60*1000, //10*60*1000,
+    pendingInviteLifetimeMillis: 10*60*1000,
     serverSecret: "6ce4732694d2eb3b139d87a9fc342d7910b2e163313088417b6effda54e9dd2e",
     maxOpenedRooms: 250, // if exceed no Room can be opened at the moment, man kann wohl nur 65k, aber realistisch nur 20k Websockets pro IP betreiben (bei 40 Geräten pro Raum, wären das maximal 500 Raum und wegen Puffer halt die hälfte)
     millisAfterLastTeacherKeepAliveToAutoColeTheRoom: 60*60*1000,
@@ -147,7 +147,7 @@ expressApp.post('/api/v1/teacher/updateRoom', function(req, res, next) {
     }
     const newRoomName = util.checkStringWithMaxLength(req.body.name, 200)
     const newCurrentlyOpen = req.body.currentlyOpen !== undefined ? util.checkBoolean(req.body.currentlyOpen) : room.currentlyOpen
-    const newAllowedRoomDevices = req.body.allowedRoomDeviceIds !== undefined ? util.checkIdArray(req.body.allowedRoomDeviceId).map(roomDeviceId => {
+    const newAllowedRoomDevices = req.body.allowedRoomDeviceIds !== undefined ? util.checkIdArray(req.body.allowedRoomDeviceIds).map(roomDeviceId => {
         return {
             roomDeviceId,
             roomDeviceSecret: generateRoomDeviceSecret(room.id, roomDeviceId),
@@ -184,13 +184,13 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
     const inviteCode = findInviteCode(req.body.inviteCode)
 
     if (inviteCode) {
-        const { id: roomId, name: roomName } = findRoom(inviteCode.roomid)
+        const { id: roomId, name: roomName } = findRoom(inviteCode.roomId)
 
         const roomDeviceIdSuffix = "0" // last char reserved for later use
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
         const roomDeviceSecret = generateRoomDeviceSecret(roomId, roomDeviceId)
 
-        room.pendingInvites.push({
+        data.pendingInvites.push({
             roomId,
             roomDeviceId,
             roomDeviceSecret,
@@ -221,7 +221,7 @@ expressApp.post('/api/v1/pupil/getStatusOfPendingInvites', function(req, res, ne
         const { roomId, roomDeviceId, roomDeviceSecret } = pendingInvite
         checkRoomDeviceSecret(roomId, roomDeviceId, roomDeviceSecret)
         const room = findRoomOrNull(roomId)
-        const status = null
+        let status = null
         if (room == null) {
             status = "room not present"
         } else if (room.allowedRoomDevices.map(x => x.roomDeviceId).includes(roomDeviceId)) {
@@ -330,6 +330,7 @@ function removeOldPendingInvites() {
 }
 
 function findInviteCode(code) {
+    util.checkStringWithMaxLength(code, 8)
     removeOldInviteCodes()
     return data.inviteCodes.find(x => x.code === code)
 }

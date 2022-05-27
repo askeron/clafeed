@@ -27,11 +27,12 @@ const createNewRoom = async () => {
 const deleteRoom = (id, name) => {
   if (confirm(`Den Raum "${name}" wirklich löschen?`)) {
     useDeleteRoom(id)
+    notify({
+      title: "Raum gelöscht",
+      text: `Der Raum "${name}" wurde gelöscht.`,
+    })
   }
-  notify({
-    title: "Raum gelöscht",
-    text: `Der Raum "${name}" wurde gelöscht.`,
-  })
+  
 }
 
 const renameRoom = (id, oldName) => {

@@ -1,4 +1,4 @@
-import { usePupilStore } from '@/stores/pupil'
+import { useTeacherStore } from '@/stores/teacher'
 
 async function jsonPost(path, body) {
   const response = await fetch(`http://localhost:8080/${path.substring(1)}`, {
@@ -27,6 +27,8 @@ export async function useCreateRoom(name) {
 }
 
 export async function useDeleteRoom(id) {
+  const teacherStore = useTeacherStore()
+  const { secret } = teacherStore.getRoomById(id)
   await jsonPost('/api/v1/teacher/deleteRoom', {
     id,
     secret,

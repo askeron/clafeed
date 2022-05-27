@@ -1,7 +1,22 @@
 const crypto = require('node:crypto')
+const { isArray } = require('node:util')
 
 function isLowerCaseHexStringWithLength(text, length) {
     return typeof text === "string" && text.length == length && text.match(/^[0-9a-f]+$/)
+}
+
+function checkArray(value) {
+    if (!(Array.isArray(value))) {
+        throw new Error("not an array")
+    }
+    return value
+}
+
+function checkIdFormat(id) {
+    if (!isLowerCaseHexStringWithLength(id, 64)) {
+        throw "invalid id format"
+    }
+    return id
 }
 
 module.exports = {
@@ -16,12 +31,7 @@ module.exports = {
         }
         return result
     },
-    checkIdFormat(id) {
-        if (!isLowerCaseHexStringWithLength(id, 64)) {
-            throw "invalid id format"
-        }
-        return id
-    },
+    checkIdFormat,
     also(value, lambda) {
         lambda(value)
         return value
@@ -50,21 +60,16 @@ module.exports = {
         }
         return value
     },
-    checkArray(value) {
-        if (!(typeof value === "array")) {
-            throw "not an array"
-        }
-        return value
-    },
+    checkArray,
     checkIdArray(value) {
-        this.checkArray(value)
+        checkArray(value)
         value.forEach(x => {
             checkIdFormat(x)
         });
         return value
     },
     checkObjectArray(value) {
-        this.checkArray(value)
+        checkArray(value)
         value.forEach(x => {
             if (!(typeof x === "object")) {
                 throw "not a object"

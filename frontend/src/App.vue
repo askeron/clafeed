@@ -9,9 +9,9 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
   <RouterView />
   <footer>
     <a href="https://www.clafeed.de/" target="_blank">
-      Clafeed <i>Beta</i>
+      Clafeed
     </a>
-    <span class="subtitle"> - das datensparsame classroom feedback tool</span>
+    <span class="subtitle"> <i>(aktuell im alpha Status)</i> - das datensparsame classroom feedback tool</span>
   </footer>
 </template>
 

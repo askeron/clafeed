@@ -5,7 +5,7 @@ import { ref, reactive, watch, computed } from "vue"
 import { usePupilStore } from '@/stores/pupil'
 import { useCheckPendingInvites, useUseInviteCode } from '@/composables/pupilServer'
 import { useDateNow } from '@/composables/useDateNow'
-
+import { getSecondsLeftString } from '@/utils/common'
 const pupilStore = usePupilStore()
 
 const inviteCode = ref("")
@@ -15,7 +15,7 @@ const dateNow = useDateNow()
 
 const pendingInvitesToShow = computed(() => {
   const now = dateNow.value
-  return pupilStore.pendingInvites.filter(x.validUntil >= now)
+  return pupilStore.pendingInvites.filter(x => x.validUntil >= now)
 })
 
 setInterval(() => useCheckPendingInvites(), 5000)
@@ -31,9 +31,9 @@ const joinRoom = () => {
     <ThePupilMainTabs :activeIndex="1"/>
     <div>
       <p>Einladungscode:</p>
-      <input v-modal="inviteCode">
-      <p>Beitrittscode:</p>
-      <input v-modal="suggestedName">
+      <input v-model="inviteCode" maxlength="8">
+      <p>Schüler*innenname:</p>
+      <input v-model="suggestedName">
       <br/>
       <button @click.prevent="joinRoom()">Raum beitretten</button>
     </div>

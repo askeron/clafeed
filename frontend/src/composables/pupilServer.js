@@ -19,20 +19,21 @@ export async function useCheckPendingInvites() {
   const pupilStore = usePupilStore()
   const pendingInvites = pupilStore.pendingInvites
   if (pendingInvites.length > 0) {
-    const results = await jsonPost('/api/v1/pupil/getStatusOfPendingInvites', 
-    pendingInvites.map(x => {
-      const { roomId, roomDeviceId, roomDeviceSecret } = x
-      return {
-        roomId,
-        roomDeviceId,
-        roomDeviceSecret,
-      }
-    })
+    const results = await jsonPost('/api/v1/pupil/getStatusOfPendingInvites', {
+      pendingInvites: pendingInvites.map(x => {
+        const { roomId, roomDeviceId, roomDeviceSecret } = x
+        return {
+          roomId,
+          roomDeviceId,
+          roomDeviceSecret,
+        }
+      })
+    }
   )
   results.forEach(result => {
     const { roomDeviceId, status } = result
     const { roomId, roomDeviceSecret, roomName } = pupilStore.getPendingInvitesByRoomDeviceId(roomDeviceId) || {}
-    if (pendingInvite) {
+    if (roomDeviceSecret) {
       if (status === "pending") {
         // nothing to do
       } else if (status === "accepted") {
@@ -67,7 +68,7 @@ export async function useUseInviteCode(inviteCode, suggestedPupilName) {
     roomDeviceId,
     roomDeviceSecret,
     lifetimeMillis,
-  } = await jsonPost('/api/v1/pupil/getStatusOfPendingInvites', {
+  } = await jsonPost('/api/v1/pupil/useInviteCode', {
     inviteCode,
     suggestedPupilName,
   })
