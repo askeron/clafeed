@@ -2,7 +2,7 @@ const util = require('./util.js')
 const { also } = util
 
 const express = require('express')
-const { checkIdFormat, clearArray } = require('./util.js')
+const { checkIdFormat, clearArray, checkObjectArray } = require('./util.js')
 const cron = require('node-cron');
 const expressApp = express()
 const expressServer = require('http').createServer(expressApp)
@@ -32,7 +32,7 @@ expressApp.use(express.json());
 
 const serverEnv = {
     inviteCodeLifetimeMillis: 10*60*1000,
-    joinRequestLifetimeMillis: 10*60*1000,
+    pendingInviteLifetimeMillis: 10*60*1000, //10*60*1000,
     serverSecret: "6ce4732694d2eb3b139d87a9fc342d7910b2e163313088417b6effda54e9dd2e",
     maxOpenedRooms: 250, // if exceed no Room can be opened at the moment, man kann wohl nur 65k, aber realistisch nur 20k Websockets pro IP betreiben (bei 40 Geräten pro Raum, wären das maximal 500 Raum und wegen Puffer halt die hälfte)
     millisAfterLastTeacherKeepAliveToAutoColeTheRoom: 60*60*1000,
@@ -55,10 +55,19 @@ const data = {
             name: "Klasse 7a Physik bei Herrn Kuhlen",
             currentlyOpen: true,
             lastKeepAliveFromTeacher: 1647559031960,
-            allowedRoomDeviceId: [
-                "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997",
-                "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
-                "107e768f183deb80080fe43df504bef6333516bd5ee7cf7af0e4be201f284586",
+            allowedRoomDevices: [
+                {
+                    roomDeviceId: "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997",
+                    roomDeviceSecret: "9564915d5ae79cd2c0f27e9c18f395357556bb4333d819a446e93170ffb83997",
+                },
+                {
+                    roomDeviceId: "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
+                    roomDeviceSecret: "be8573a1b0890628dfbffaa0dc07c17f7863ce8ff54462659785b853bde9eb18",
+                },
+                {
+                    roomDeviceId: "107e768f183deb80080fe43df504bef6333516bd5ee7cf7af0e4be201f284586",
+                    roomDeviceSecret: "107e768f183deb80080fe43df504bef6333516bd5ee7cf7af0e4be201f284586",
+                },
             ],
         },
     ],
@@ -69,13 +78,13 @@ const data = {
             maxLifetimeDate: Date.now() + serverEnv.inviteCodeLifetimeMillis,
         },
     ],
-    joinRequests: [
+    pendingInvites: [
         {
             roomId: "814ed27c4f2937a69d400d04c107b488ebb91b0fc0f48360011498af1a770000",
             roomDeviceId: "d28df0e8d2cbd14cbba6730a57f71f0eec7dee9066fdae686a6a5ae7b196bf7b",
             roomDeviceSecret: "841d21ec38da65e924359a80301de92c188bad0373330bd15a0925058c0b02ef",
             suggestedPupilName: "Sven",
-            maxLifetimeDate: Date.now() + serverEnv.joinRequestLifetimeMillis,
+            maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
         },
     ]
 }
@@ -132,16 +141,21 @@ expressApp.post('/api/v1/teacher/updateRoom', function(req, res, next) {
             secret: req.body.secret,
             currentlyOpen: false,
             lastKeepAliveFromTeacher: Date.now(),
-            allowedRoomDeviceId: [],
+            allowedRoomDevices: [],
         }
         data.rooms.push(room)
     }
     const newRoomName = util.checkStringWithMaxLength(req.body.name, 200)
     const newCurrentlyOpen = req.body.currentlyOpen !== undefined ? util.checkBoolean(req.body.currentlyOpen) : room.currentlyOpen
-    const newAllowedRoomDeviceId = req.body.allowedRoomDeviceId !== undefined ? util.checkIdArray(req.body.allowedRoomDeviceId) : room.allowedRoomDeviceId
+    const newAllowedRoomDevices = req.body.allowedRoomDeviceIds !== undefined ? util.checkIdArray(req.body.allowedRoomDeviceId).map(roomDeviceId => {
+        return {
+            roomDeviceId,
+            roomDeviceSecret: generateRoomDeviceSecret(room.id, roomDeviceId),
+        }
+    }) : room.allowedRoomDevices
     room.name = newRoomName
     room.currentlyOpen = newCurrentlyOpen
-    room.allowedRoomDeviceId = newAllowedRoomDeviceId
+    room.allowedRoomDevices = newAllowedRoomDevices
     room.lastKeepAliveFromTeacher = Date.now()
     res.json({})
 })
@@ -167,7 +181,7 @@ expressApp.post('/api/v1/teacher/createInviteCode', function(req, res, next) {
 })
 
 expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
-    const inviteCode = findInviteCode(req.body.code)
+    const inviteCode = findInviteCode(req.body.inviteCode)
 
     if (inviteCode) {
         const { id: roomId, name: roomName } = findRoom(inviteCode.roomid)
@@ -176,29 +190,53 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
         const roomDeviceSecret = generateRoomDeviceSecret(roomId, roomDeviceId)
 
-        const joinRequest = {
+        room.pendingInvites.push({
             roomId,
-            roomName,
             roomDeviceId,
             roomDeviceSecret,
             suggestedPupilName: util.checkStringWithMaxLength(req.body.suggestedPupilName, 200),
-            maxLifetimeDate: Date.now() + serverEnv.joinRequestLifetimeMillis,
-        }
-        
-        room.joinRequests.push(joinRequest)
+            maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
+        })
 
         res.json({
             found: true,
             roomId,
+            roomName,
             roomDeviceId,
             roomDeviceSecret,
-            lifetimeMillis: serverEnv.joinRequestLifetimeMillis,
+            lifetimeMillis: serverEnv.pendingInviteLifetimeMillis,
         })
     } else {
         res.json({
             found: false,
         })
     }
+})
+
+expressApp.post('/api/v1/pupil/getStatusOfPendingInvites', function(req, res, next) {
+    removeOldPendingInvites()
+    const pendingInvites = checkObjectArray(req.body.pendingInvites)
+
+    res.json(pendingInvites.map(pendingInvite => {
+        const { roomId, roomDeviceId, roomDeviceSecret } = pendingInvite
+        checkRoomDeviceSecret(roomId, roomDeviceId, roomDeviceSecret)
+        const room = findRoomOrNull(roomId)
+        const status = null
+        if (room == null) {
+            status = "room not present"
+        } else if (room.allowedRoomDevices.map(x => x.roomDeviceId).includes(roomDeviceId)) {
+            status = "accepted"
+        } else if (data.pendingInvites.map(x => x.roomDeviceId).includes(roomDeviceId)) {
+            status = "pending"
+        } else {
+            status = "not found"
+        }
+        return {
+            roomId,
+            roomDeviceId,
+            status,
+        }
+    }))
 })
 
 function createNewRoom(name) {
@@ -247,6 +285,15 @@ function checkRoomSecret(id, secret) {
     }
 }
 
+function checkRoomDeviceSecret(roomId, roomDeviceId, roomDeviceSecret) {
+    checkIdFormat(roomId)
+    checkIdFormat(roomDeviceId)
+    checkIdFormat(roomDeviceSecret)
+    if (generateRoomDeviceSecret(roomId, roomDeviceId) !== roomDeviceSecret) {
+        throw "wrong roomDeviceSecret"
+    }
+}
+
 function onlyInDevMode() {
     if (!serverEnv.devMode) {
         throw "devmode is active"
@@ -276,6 +323,10 @@ cron.schedule('0 0 23 * * *', () => {
 
 function removeOldInviteCodes() {
     data.inviteCodes = data.inviteCodes.filter(x => x.maxLifetimeDate > Date.now())
+}
+
+function removeOldPendingInvites() {
+    data.pendingInvites = data.pendingInvites.filter(x => x.maxLifetimeDate > Date.now())
 }
 
 function findInviteCode(code) {

@@ -1,4 +1,4 @@
-import { useTeacherStore } from '@/stores/teacher'
+import { usePupilStore } from '@/stores/pupil'
 
 async function jsonPost(path, body) {
   const response = await fetch(`http://localhost:8080/${path.substring(1)}`, {

@@ -7,8 +7,7 @@ export function deleteItemFromArray(array, predicate) {
   }
 }
 
-
-export function getTimeStringForSeconds(seconds) {
+function getTimeStringForSeconds(seconds) {
   if (seconds === 0) {
     return "0:00"
   }
@@ -25,6 +24,11 @@ export function getTimeStringForSeconds(seconds) {
   } else {
     return `${signString}${minutesToShow}:${(""+secondsToShow).padStart(2, '0')}`
   }
+}
+
+export function getSecondsLeftString(millis) {
+  const secondsLeft = Math.round(millis/1000)
+  return getTimeStringForSeconds(secondsLeft)
 }
 
 export function getArraySortedBy(array, mapFunction) {

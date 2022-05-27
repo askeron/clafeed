@@ -1,25 +1,20 @@
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import { RouterLink, useRoute } from 'vue-router'
 import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
+import { useDateNow } from '@/composables/useDateNow'
 import { useUpdateRoomFromStore, useCreateInviteCode, useOpenRoom, useCloseRoom } from '@/composables/teacherServer'
-import { getTimeStringForSeconds } from '@/utils/common'
+import { getSecondsLeftString } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
 
 const route = useRoute()
 const roomId = computed(() => route.params.roomId)
 const room = computed(() => teacherStore.getRoomById(roomId.value))
-const nowState = ref(Date.now())
-setInterval(() => nowState.value = Date.now(), 1000)
-
-const getSecondsLeftString = (validUntil) => {
-  const secondsLeft = Math.round((validUntil - Date.now())/1000)
-  return getTimeStringForSeconds(secondsLeft)
-}
+const dateNow = useDateNow()
 
 onMounted(() => {
   useUpdateRoomFromStore(roomId.value)
@@ -48,9 +43,9 @@ onMounted(() => {
               Raum geschlossen - <button @click.prevent="useOpenRoom(roomId)">öffnen</button>
             </div>
             <h2>Einladungscode</h2>
-            <div v-if="room.inviteCode && room.inviteCodeValidUntil > nowState">
+            <div v-if="room.inviteCode && room.inviteCodeValidUntil > dateNow">
               <h3>{{ room.inviteCode }}</h3>
-              <p>noch gültig für {{ getSecondsLeftString(room.inviteCodeValidUntil) }}</p>
+              <p>noch gültig für {{ getSecondsLeftString(room.inviteCodeValidUntil - dateNow) }}</p>
               <button @click.prevent="useCreateInviteCode(roomId)">neu generieren</button>
             </div>
             <div v-else>

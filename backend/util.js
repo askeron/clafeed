@@ -32,6 +32,12 @@ module.exports = {
         }
         return value
     },
+    assertTrue(conditionResult, message) {
+        if (conditionResult) {
+            throw message
+        }
+        return value
+    },
     checkStringWithMaxLength(text, maxLength) {
         if (!(typeof text === "string" && text.length <= maxLength)) {
             throw "invalid string length"
@@ -44,15 +50,25 @@ module.exports = {
         }
         return value
     },
-    checkIdArray(value) {
+    checkArray(value) {
         if (!(typeof value === "array")) {
             throw "not an array"
         }
+        return value
+    },
+    checkIdArray(value) {
+        this.checkArray(value)
         value.forEach(x => {
-            if (!(typeof x === "string")) {
-                throw "array contains non-strings"
-            }
             checkIdFormat(x)
+        });
+        return value
+    },
+    checkObjectArray(value) {
+        this.checkArray(value)
+        value.forEach(x => {
+            if (!(typeof x === "object")) {
+                throw "not a object"
+            }
         });
         return value
     },
