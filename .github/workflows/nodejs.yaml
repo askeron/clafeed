@@ -48,6 +48,11 @@ jobs:
         find: "http://localhost:8080/"
         replace: "/"
         regex: false
+    - uses: jacobtomlinson/gha-find-replace@v2
+      with:
+        find: "devMode: true"
+        replace: "devMode: false"
+        regex: false
     - name: Use Node.js 16.x
       uses: actions/setup-node@v1
       with:
