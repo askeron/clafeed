@@ -40,7 +40,7 @@ const joinRoom = () => {
     <div>
       <transition-group name="flip-list" tag="div">
         <div v-for="pendingInvite in pendingInvitesToShow" :key="pendingInvite.roomDeviceId">
-          {{ pendingInvite.roomName }} ({{ pendingInvite.roomId.substring(0,4) }}) - gültig bis {{ getSecondsLeftString(pendingInvite.validUntil - dateNow) }}
+          {{ pendingInvite.roomName }} ({{ pendingInvite.roomId.substring(0,4) }}) - noch gültig für {{ getSecondsLeftString(pendingInvite.validUntil - dateNow) }}
         </div>
       </transition-group>
     </div>
