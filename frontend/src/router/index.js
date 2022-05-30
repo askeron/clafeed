@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PupilRooms from '../views/PupilRooms.vue'
+import PupilRoom from '../views/PupilRoom.vue'
 import PupilJoin from '../views/PupilJoin.vue'
 import TeacherRooms from '../views/TeacherRooms.vue'
 import TeacherRoom from '../views/TeacherRoom.vue'
@@ -17,6 +18,11 @@ const router = createRouter({
       path: '/join',
       name: 'pupilJoin',
       component: PupilJoin
+    },
+    {
+      path: '/room/:roomId',
+      name: 'pupilRoom',
+      component: PupilRoom
     },
     {
       path: '/teacher',

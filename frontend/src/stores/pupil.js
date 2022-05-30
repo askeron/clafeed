@@ -22,8 +22,8 @@ export const usePupilStore = defineStore({
   actions: {
     addRoom({ roomId, roomName, roomDeviceId, roomDeviceSecret }) {
       this.storedRooms.push({
-        roomId,
-        roomName,
+        id: roomId,
+        name: roomName,
         roomDeviceId,
         roomDeviceSecret,
       })

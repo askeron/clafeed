@@ -197,6 +197,16 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
             maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
         })
 
+        // HACK START
+        setTimeout(() => {
+            const room = findRoom(roomId)
+            room.allowedRoomDevices.push({
+                roomDeviceId,
+                roomDeviceSecret,
+            })
+        }, 4000)
+        // HACK START
+
         res.json({
             found: true,
             roomId,
