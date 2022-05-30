@@ -29,6 +29,10 @@ export const usePupilStore = defineStore({
       })
       deleteItemFromArray(this.pendingInvites, x => x.roomId === roomId)
     },
+    removeRoom(id) {
+      console.log(`delete $id`)
+      deleteItemFromArray(this.storedRooms, x => x.id === id)
+    },
     addPendingInvite({ roomId, roomName, roomDeviceId, roomDeviceSecret, validUntil }) {
       this.pendingInvites.push({
         roomId,

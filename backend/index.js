@@ -228,6 +228,12 @@ function acceptAllPendingInvites() {
 cron.schedule('*/3 * * * * *', () => {
     acceptAllPendingInvites()
 })
+
+expressApp.post('/hack/teacher/acceptAllPendingInvites', function(req, res, next) {
+    removeOldPendingInvites()
+    acceptAllPendingInvites()
+})
+
 // HACK END
 
 expressApp.post('/api/v1/pupil/getStatusOfPendingInvites', function(req, res, next) {
