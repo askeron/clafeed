@@ -197,16 +197,6 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
             maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
         })
 
-        // HACK START
-        setTimeout(() => {
-            const room = findRoom(roomId)
-            room.allowedRoomDevices.push({
-                roomDeviceId,
-                roomDeviceSecret,
-            })
-        }, 4000)
-        // HACK START
-
         res.json({
             found: true,
             roomId,
@@ -221,6 +211,24 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
         })
     }
 })
+
+// HACK START
+function acceptAllPendingInvites() {
+    data.pendingInvites.forEach(({roomId, roomDeviceId, roomDeviceSecret}) => {
+        const room = findRoom(roomId)
+        if (room) {
+            room.allowedRoomDevices.push({
+                roomDeviceId,
+                roomDeviceSecret,
+            })
+        }
+    })
+}
+
+cron.schedule('*/3 * * * * *', () => {
+    acceptAllPendingInvites()
+})
+// HACK END
 
 expressApp.post('/api/v1/pupil/getStatusOfPendingInvites', function(req, res, next) {
     removeOldPendingInvites()
@@ -259,10 +267,8 @@ function createNewRoom(name) {
         name,
         currentlyOpen: false,
         lastKeepAliveFromTeacher: Date.now(),
-        allowedRoomDeviceId: [
+        allowedRoomDevices: [
         ],
-        allowedDevices: [
-        ]
     }
     data.rooms.push(room)
     return room
