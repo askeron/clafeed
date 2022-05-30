@@ -18,8 +18,12 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
   </div>
 </template>
 
+<style lang="sass">
+@import '@/assets/custom.scss'
+</style>
+
 <style>
-@import '@/assets/base.css';
+/*@import '@/assets/base.css';*/
 
 footer {
   position: fixed;

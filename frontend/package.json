@@ -13,6 +13,7 @@
   "dependencies": {
     "@kyvg/vue3-notification": "^2.3.4",
     "@vueuse/core": "^8.5.0",
+    "bootstrap": "5.2.0-beta1",
     "pinia": "^2.0.13",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14"
@@ -28,6 +29,7 @@
     "eslint-plugin-vue": "^8.2.0",
     "jsdom": "^19.0.0",
     "prettier": "^2.5.1",
+    "sass": "^1.52.1",
     "start-server-and-test": "^1.14.0",
     "vite": "^2.9.5",
     "vitest": "^0.9.3"
