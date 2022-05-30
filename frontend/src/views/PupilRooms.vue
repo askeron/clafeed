@@ -35,7 +35,7 @@ const navigateToRoom = (roomId) => {
 }
 
 onMounted(() => {
-  const interval = 300
+  const interval = 500
   roomDisplayCount.value = 1
   setTimeout(() => {
     roomDisplayCount.value = 2
@@ -134,6 +134,6 @@ onMounted(() => {
 
 <style scoped>
 .flip-list-move {
-  transition: transform 0.3s;
+  transition: transform 0.5s;
 }
 </style>
