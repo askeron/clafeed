@@ -20,7 +20,7 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
   <RouterView />
   <footer>
     <a href="https://www.clafeed.de/" target="_blank" class="text-info">Clafeed</a> 
-    <span class="subtitle text-white">&nbsp;<i>(aktuell im alpha Status)</i> - das datensparsame classroom feedback tool</span>
+    <span class="subtitle text-white">&nbsp;- das datensparsame Classroom Feedback Tool<br/><i>(aktuell im Alpha-Status)</i></span>
   </footer>
   </div>
 </template>
@@ -45,7 +45,7 @@ footer {
 }
 
 .subtitle {
-  font-size: x-small;
+  font-size: small;
 }
 
 .vue-notification {
