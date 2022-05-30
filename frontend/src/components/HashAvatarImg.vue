@@ -8,5 +8,5 @@ defineProps({
 </script>
 
 <template>
-  <img class="gravata-rund" :src="'https://www.gravatar.com/avatar/'+hash+'?d=wavatar&s=80'" width="40" height="40"/>
+  <img class="gravatar-rounded" :src="'https://www.gravatar.com/avatar/'+hash+'?d=wavatar&s=80'" width="42" height="40"/>
 </template>

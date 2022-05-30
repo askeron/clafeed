@@ -35,7 +35,7 @@ const navigateToRoom = (roomId) => {
 }
 
 onMounted(() => {
-  const interval = 300
+  const interval = 500
   roomDisplayCount.value = 1
   setTimeout(() => {
     roomDisplayCount.value = 2
@@ -89,7 +89,7 @@ onMounted(() => {
         </div>
         <div v-else>
           <p>
-            <button @click.prevent="sortOrderAlphabetical = !sortOrderAlphabetical" class="btn btn-success" type="button">
+            <button @click.prevent="sortOrderAlphabetical = !sortOrderAlphabetical" class="btn btn-danger" type="button">
                 <span v-if="sortOrderAlphabetical">
                     sortiert nach Name (A-Z)
                 </span>
@@ -100,7 +100,7 @@ onMounted(() => {
           </p>
           <br/>
           <transition-group name="flip-list" tag="div">
-            <div v-for="room in displayedRooms" :key="room.id" class="shadow p-3 mb-5 bg-light rounded" :data-use-later-for-onclick="'/room/'+room.id" @click.prevent="navigateToRoom(room.id)">
+            <div v-for="room in displayedRooms" :key="room.id" class="shadow p-3 mb-5 bg-success rounded" :data-use-later-for-onclick="'/room/'+room.id" @click.prevent="navigateToRoom(room.id)">
               <div class="row">
                 <div class="col-2">
                   <HashAvatarImg :hash="room.id"/>
@@ -134,6 +134,6 @@ onMounted(() => {
 
 <style scoped>
 .flip-list-move {
-  transition: transform 0.3s;
+  transition: transform 0.5s;
 }
 </style>

@@ -12,8 +12,8 @@ $primary: #401670;
 $secondary: #4256f4;
 $success: #24bf4b;
 $info: #2197a3;
-
-$light: #999999;
+$danger: #141529;
+$light: #eeeeee;
 
 $bg-body: #111111;
 //shadows
@@ -47,7 +47,15 @@ $box-shadow: 0 .5rem 1rem rgba(0 0 0 / 75%);
     border-radius: 20px;
 }
 
-.gravata-rund {
+.noleftcorners {
+    border-radius: 0px 10px 0 0px !important;
+}
+
+.norightcorners {
+    border-radius: 10px 0px 0px 0px !important;
+}
+
+.gravatar-rounded {
     border-radius: 20% !important;
     -webkit-border-radius: 20% !important;
     -moz-border-radius: 20% !important;
