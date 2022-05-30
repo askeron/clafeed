@@ -50,7 +50,7 @@ const renameRoom = (id, oldName) => {
 </script>
 
 <template>
-  <div>
+  <div style="background-color:aliceblue">
     <p>
       Lehrer-Räume:
     </p>

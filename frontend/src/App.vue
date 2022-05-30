@@ -4,16 +4,23 @@ import DetectMultipleInstances from '@/components/DetectMultipleInstances.vue'
 </script>
 
 <template>
-  <div class="container">
+  <div class="container appcontent roundcorners bg-dark">
   <DetectMultipleInstances />
   <notifications position="bottom center" :duration="3000" width="90%"/>
-  <div>
-    <img alt="Logo" class="logo" src="@/assets/logo-clafeed-150.png" width="75"/>
+  <div class="row bg-dark roundcorners">
+    <div class="col">
+    </div>
+    <div class="col-6 text-center">
+      <img alt="Logo" class="logo" src="@/assets/img/logo-clafeed-250.png" width="150"/>
+    </div>
+    <div class="col"> 
+    </div>
+    
   </div>
   <RouterView />
   <footer>
-    <a href="https://www.clafeed.de/" target="_blank">Clafeed</a> 
-    <span class="subtitle">&nbsp;<i>(aktuell im alpha Status)</i> - das datensparsame classroom feedback tool</span>
+    <a href="https://www.clafeed.de/" target="_blank" class="text-info">Clafeed</a> 
+    <span class="subtitle text-white">&nbsp;<i>(aktuell im alpha Status)</i> - das datensparsame classroom feedback tool</span>
   </footer>
   </div>
 </template>

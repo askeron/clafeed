@@ -31,13 +31,13 @@ const joinRoom = () => {
     <ThePupilMainTabs :activeIndex="1"/>
     <div>
       <br/>
-      <label for="inviteCode" class="form-label">Einladungscode</label>
-      <input v-model="inviteCode" id="inviteCode" class="form-control" maxlength="8">
+      <label for="inviteCode" class="form-label text-white">Einladungscode</label>
+      <input v-model="inviteCode" id="inviteCode" class="form-control shadow" maxlength="8">
       <br/>
-      <label for="suggestedName" class="form-label">Schüler*innenname</label>
+      <label for="suggestedName" class="form-label text-white">Name Schüler*innen</label>
       <input v-model="suggestedName" id="suggestedName" class="form-control">
       <br/>
-      <button @click.prevent="joinRoom()" class="btn btn-primary">Raum beitretten</button>
+      <button @click.prevent="joinRoom()" class="btn btn-primary shadow">Raum beitretten</button>
     </div>
     <div>
       <transition-group name="flip-list" tag="div">

@@ -3,8 +3,52 @@
 
 // Include any default variable overrides here (though functions won't be available)
 
-$primary: #20c997;
+
+//colors
+
+
+
+$primary: #401670;
+$secondary: #4256f4;
+$success: #24bf4b;
+$info: #2197a3;
+
+$light: #999999;
+
+$bg-body: #111111;
+//shadows
+$enable-shadows: true;
+
+$box-shadow: 0 .5rem 1rem rgba(0 0 0 / 75%);
+
+
 
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here
+
+.form-control {
+    background-color: #666666 !important;
+    box-shadow: inset 0 0.25rem .5rem rgb(0 0 0 / 50%) !important;
+    color: black;
+}
+
+
+.appcontent {
+	min-height: 100vh;
+    background: #232427;
+	border-color: gray;
+    border: 2px;
+    border-radius: 20px;
+	
+}
+
+.roundcorners {
+    border-radius: 20px;
+}
+
+.gravata-rund {
+    border-radius: 20% !important;
+    -webkit-border-radius: 20% !important;
+    -moz-border-radius: 20% !important;
+    }

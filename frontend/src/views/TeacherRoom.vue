@@ -23,7 +23,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div style="background-color:aliceblue">
     <div>
       <RouterLink to="/teacher">zurück</RouterLink>
       <HashAvatarImg :hash="roomId"/>
