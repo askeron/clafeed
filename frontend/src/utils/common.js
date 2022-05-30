@@ -27,7 +27,8 @@ function getTimeStringForSeconds(seconds) {
 }
 
 export function getSecondsLeftString(millis) {
-  const secondsLeft = Math.round(millis/1000)
+  const offsetToPreventJumpingMillis = 5
+  const secondsLeft = Math.round((millis-offsetToPreventJumpingMillis)/1000)
   return getTimeStringForSeconds(secondsLeft)
 }
 

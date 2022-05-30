@@ -166,7 +166,6 @@ expressApp.post('/api/v1/teacher/createInviteCode', function(req, res, next) {
     let newCode
     do {
         newCode = ""+util.getRandomIntegerInRange(10_000_000, 99_999_999)
-        console.log(newCode)
     } while (data.inviteCodes.filter(x => x.code === newCode).length != 0) // regerate code until unused is found
     const inviteCode = {
         code: newCode,
