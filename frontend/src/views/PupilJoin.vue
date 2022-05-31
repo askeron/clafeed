@@ -32,7 +32,7 @@ const joinRoom = () => {
     <div>
       <br/>
       <label for="inviteCode" class="form-label text-white">Einladungscode</label>
-      <input v-model="inviteCode" id="inviteCode" class="form-control shadow" maxlength="8">
+      <input v-model="inviteCode" id="inviteCode" class="form-control shadow" type="text" pattern="\d*" maxlength="8">
       <br/>
       <label for="suggestedName" class="form-label text-white">Name Schüler*innen</label>
       <input v-model="suggestedName" id="suggestedName" class="form-control">
