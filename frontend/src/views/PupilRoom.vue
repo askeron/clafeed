@@ -45,7 +45,7 @@ onMounted(() => {
         </div>
       </div>
     
-    <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion']">
+    <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion']" :showRemoveButton="true">
       <template v-slot:content1>
         <div>
           <div class="row">
@@ -79,7 +79,7 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3','Screen4']">
+          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3','Screen4']" :showRemoveButton="true">
             <template v-slot:content1>
               <div>
                 <div class="row py-2" id="btn1">
@@ -244,7 +244,7 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3']">
+          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3']" :showRemoveButton="true">
             <template v-slot:content1>
               <div>
                 <button type="button" class="btn btn-btn2-color bg-gradient w-100 py-5 shadow">MELDEN</button>

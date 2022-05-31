@@ -7,16 +7,25 @@ const props = defineProps({
   displayNames: {
     type: Array,
   },
+  showRemoveButton: {
+    type: Boolean,
+  },
 })
+
+const showDropdown = ref(true)
+const hideDropdown = () => {
+  showDropdown.value = false
+}
 
 </script>
 
 <template>
   <div>
-    <div>
+    <div v-if="showDropdown">
       <select v-model="activeIndexString">
         <option v-for="(displayName, index) in displayNames" :key="index" :value="index">{{ displayName }}</option>
       </select>
+      <button v-if="showRemoveButton" @click.prevent="hideDropdown()">remove dropdown</button>
     </div>
     <div v-if="activeIndex === 0">
       <slot name="content1"/>
