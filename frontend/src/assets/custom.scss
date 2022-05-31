@@ -6,26 +6,75 @@
 
 //colors
 
-
-
-$primary: #401670;
+$primary: #230c3d;
 $secondary: #4256f4;
 $success: #24bf4b;
 $info: #2197a3;
+$warning: #b23030;
 $danger: #141529;
 $light: #eeeeee;
-
 $bg-body: #111111;
+$black: #000000;
+
+/* FUNKTIONIERT NICHT*/
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+);
+
+$custom-colors: (
+
+  
+  "btn1-color": #b23030,
+  "btn2-color": #167029,
+  "btn3-color": #2f40a5,
+  "btn4-color": #ad6200,
+  "modus-color": #17696d
+);
+
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+
+
+
+
+
+
 //shadows
 $enable-shadows: true;
 
 $box-shadow: 0 .5rem 1rem rgba(0 0 0 / 75%);
+$box-shadow-sm:  0 .125rem .25rem rgba($black, 75%);
+
+
+//button
+$font-weight-bold: 700;
+$btn-font-weight:  $font-weight-bold;
+$input-btn-font-size: 1.5rem;
+$btn-font-size:    $input-btn-font-size;
+
+
+
+$btn-active-box-shadow:       0 .5rem 1rem rgba(255, 255, 255, 0.75);
+$btn-active-bg-shade-amount:      0%;
+$btn-active-bg-tint-amount:       0%;
+$btn-active-border-shade-amount:  100%;
+$btn-active-border-tint-amount:   0%;
 
 
 
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here
+
+
+
 
 .form-control {
     background-color: #666666 !important;
@@ -59,4 +108,18 @@ $box-shadow: 0 .5rem 1rem rgba(0 0 0 / 75%);
     border-radius: 20% !important;
     -webkit-border-radius: 20% !important;
     -moz-border-radius: 20% !important;
-    }
+}
+
+.btn-group.special {
+    display: flex;
+}
+
+.btn-selected {
+
+    box-shadow: 0 .5rem 1rem rgba(255, 255, 255, 0.75) !important;
+}
+
+.btn-notselected {
+    background-color: #111 ;
+}
+      
