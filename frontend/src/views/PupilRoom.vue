@@ -135,7 +135,7 @@ onMounted(() => {
                 <div class="row py-2" id="btn2">
                   <div class="col-1">
                   </div>
-                  <div class="col-10 text-center">
+                  <div class="col-10 text-center btn-selected-border">
                     <h4 class="p-3 bg-btn2-color text-white rounded btn-selected">B</h4>
                   </div>
                   <div class="col-1"> 

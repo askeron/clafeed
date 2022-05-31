@@ -117,9 +117,13 @@ $btn-active-border-tint-amount:   0%;
 .btn-selected {
 
     box-shadow: 0 .5rem 1rem rgba(255, 255, 255, 0.75) !important;
+    
 }
 
-.btn-notselected {
-    background-color: #111 ;
+.btn-selected-border{
+    border-color: #ffffff !important;
+    border-width: 10px !important;
 }
+
+
       
