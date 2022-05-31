@@ -100,15 +100,15 @@ onMounted(() => {
           </p>
           <br/>
           <transition-group name="flip-list" tag="div">
-            <div v-for="room in displayedRooms" :key="room.id" class="shadow p-3 mb-5 bg-success rounded" :data-use-later-for-onclick="'/room/'+room.id" @click.prevent="navigateToRoom(room.id)">
+            <div v-for="room in displayedRooms" :key="room.id" class="shadow p-3 mb-4 bg-success rounded" :data-use-later-for-onclick="'/room/'+room.id" @click.prevent="navigateToRoom(room.id)">
               <div class="row">
-                <div class="col-2">
+                <div class="col-3">
                   <HashAvatarImg :hash="room.id"/>
                 </div>
-                <div class="col-8 text-center">
-                  <h5>{{room.name}}</h5>
+                <div class="col-6 text-center col-roomname">
+                  <h4>{{room.name}}</h4>
                 </div>
-                <div class="col-2"> 
+                <div class="col-3"> 
                   <span class="btn-group">
                 <button @click.prevent="deleteRoom(room.id, room.name); $event.stopPropagation()" class="btn btn-outline-light">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="25" fill="black" class="bi bi-trash" viewBox="0 1 15 17">
