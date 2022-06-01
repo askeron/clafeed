@@ -8,6 +8,7 @@ const expressApp = express()
 const expressServer = require('http').createServer(expressApp)
 const webSocketServer = new (require('ws')).Server({ server: expressServer })
 const historyMiddleware = require('connect-history-api-fallback')
+const bodyParser = require('body-parser')
 const cors = require('cors')
 expressApp.use("/api/", cors())
 expressApp.use(historyMiddleware({
@@ -27,8 +28,8 @@ expressApp.use(historyMiddleware({
   ]
 })) // redirects to index.html
 expressApp.use(express.static('frontend-dist'))
-expressApp.use(express.json());
-
+//expressApp.use(express.json());
+expressApp.use(bodyParser.json({limit: "50mb"}));
 
 const serverEnv = {
     inviteCodeLifetimeMillis: 10*60*1000,

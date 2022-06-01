@@ -27,6 +27,9 @@ const mode = computed(() => {
   if (index === 2 ) {
     return "interaction"
   }
+  if (index === 3 ) {
+    return "picture"
+  }
 })
 const modeDatas = reactive({
   inactive: {
@@ -39,6 +42,9 @@ const modeDatas = reactive({
   interaction: {
     enabled: true,
     calledRaiseHandRoomDeviceId: null,
+  },
+  picture: {
+    dataUrl: null,
   },
 })
 
@@ -81,6 +87,22 @@ watch(quizCorrectAnswerLetterString, (currentValue, oldValue) => {
   modeDatas.quiz.correctAnswerIndex = currentValue
 })
 
+const pictureInput = ref(null) // Template Ref
+const pictureAfterChange = async () => {
+  modeDatas.picture.dataUrl = await readFileAsDataUrlAsync(pictureInput.value.files[0])
+}
+
+async function readFileAsDataUrlAsync(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      resolve(reader.result)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 watch(mode, (currentValue, oldValue) => {
   updateModeData()
 })
@@ -100,7 +122,7 @@ watch(modeDatas, (currentValue, oldValue) => {
     </div>
     <TabsWithSlots :displayNames="['Aktivität','Verwaltung']">
       <template v-slot:content1>
-        <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion']" v-model="modeIndex">
+        <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion','Bild']" v-model="modeIndex">
           <template v-slot:content1>
             <div>
             </div>
@@ -140,6 +162,22 @@ watch(modeDatas, (currentValue, oldValue) => {
                   </div>
                 </transition-group>
                 <button @click.prevent="modeDatas.interaction.calledRaiseHandRoomDeviceId = null">niemand drannehmen</button>
+              </div>
+            </div>
+          </template>
+          <template v-slot:content4>
+            <div>
+              <div>
+                <h3>Aufnahme</h3>
+                <input type="file" accept="image/*" capture @change="pictureAfterChange()" ref="pictureInput">
+              </div>
+              <div v-if="modeDatas.picture.dataUrl">
+                <div style="text-align: center">
+                  <img :src="modeDatas.picture.dataUrl" style="width: 90%"/>
+                </div>
+                <div>
+                  <button @click.prevent="modeDatas.picture.dataUrl = null">wieder entfernen</button>
+                </div>
               </div>
             </div>
           </template>

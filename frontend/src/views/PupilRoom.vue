@@ -362,6 +362,26 @@ onMounted(() => {
           </DropdownWithSlots>
           -->
         </div>
+        <div v-if="mode === 'picture'">
+          <div class="row">
+            <div class="col-1">
+            </div>
+            <div class="col-10 text-center py-4">
+              <h1><span class="badge bg-modus-color bg-gradient shadow">Modus: Bild</span></h1>
+            </div>
+            <div class="col-1"> 
+            </div>
+          </div>
+          <div v-if="modeData.dataUrl" class="row">
+            <div class="col-1">
+            </div>
+            <div class="col-10 text-center py-4">
+              <img :src="modeData.dataUrl" style="width: 100%"/>
+            </div>
+            <div class="col-1"> 
+            </div>
+          </div>
+        </div>
   </div>
 </template>
 
