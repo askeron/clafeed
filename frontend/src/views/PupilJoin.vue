@@ -6,6 +6,8 @@ import { usePupilStore } from '@/stores/pupil'
 import { useCheckPendingInvites, useUseInviteCode } from '@/composables/pupilServer'
 import { useDateNow } from '@/composables/useDateNow'
 import { getSecondsLeftString } from '@/utils/common'
+import { notify } from "@kyvg/vue3-notification"
+
 const pupilStore = usePupilStore()
 
 const inviteCode = ref("")
@@ -21,6 +23,14 @@ const pendingInvitesToShow = computed(() => {
 setInterval(() => useCheckPendingInvites(), 5000)
 
 const joinRoom = () => {
+  if (pupilStore.hasPendingInviteWithInviteCode(inviteCode.value)) {
+    notify({
+      title: "Raumbeitritt",
+      text: `Du hast bereits einen laufenden Beitritt mit diesem Einladungcode.`,
+      type: "warn",
+    })
+    return
+  }
   useUseInviteCode(inviteCode.value, suggestedName.value)
 }
 
@@ -41,8 +51,8 @@ const joinRoom = () => {
     </div>
     <div>
       <transition-group name="flip-list" tag="div">
-        <div v-for="pendingInvite in pendingInvitesToShow" :key="pendingInvite.roomDeviceId">
-          {{ pendingInvite.roomName }} ({{ pendingInvite.roomId.substring(0,4) }}) - noch gültig für {{ getSecondsLeftString(pendingInvite.validUntil - dateNow) }}
+        <div v-for="pendingInvite in pendingInvitesToShow" :key="pendingInvite.roomDeviceId" class="text-white">
+          {{ pendingInvite.roomName }} ({{ pendingInvite.roomId.substring(0,4) }}) mit Einladungscode {{ pendingInvite.inviteCode }} - noch gültig für {{ getSecondsLeftString(pendingInvite.validUntil - dateNow) }}
         </div>
       </transition-group>
     </div>

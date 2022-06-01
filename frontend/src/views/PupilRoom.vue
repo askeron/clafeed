@@ -1,12 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, reactive, watch } from "vue"
 import { RouterLink, useRoute } from 'vue-router'
 import HashAvatarImg from '@/components/HashAvatarImg.vue'
 import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { usePupilStore } from '@/stores/pupil'
 import { useDateNow } from '@/composables/useDateNow'
-import { getSecondsLeftString } from '@/utils/common'
+import { useWebsocket } from '@/composables/pupilServer'
+import { getSecondsLeftString, getQuizLetterStringFromIndex, getIndiciesFromCount } from '@/utils/common'
+import { notify } from "@kyvg/vue3-notification"
 
 const pupilStore = usePupilStore()
 
@@ -15,10 +17,46 @@ const roomId = computed(() => route.params.roomId)
 const room = computed(() => pupilStore.getRoomById(roomId.value))
 const dateNow = useDateNow()
 
+const roomIdModeDataMap = reactive({})
+
+useWebsocket((modeDataMsg) => {
+  const { roomId, modeData } = modeDataMsg
+  roomIdModeDataMap[roomId] = JSON.stringify(modeData)
+})
+
+const modeDataComplete = computed(() => JSON.parse(roomIdModeDataMap[roomId.value] ?? '{"mode": "inactive", "data": {}}'))
+const mode = computed(() => modeDataComplete.value.mode)
+const modeData = computed(() => modeDataComplete.value.data)
+
+const quizSelectedAnswerIndex = ref(-1)
+
+watch(mode, (currentValue, oldValue) => {
+  if (currentValue !== oldValue) {
+    quizSelectedAnswerIndex.value = -1
+  }
+})
+
+const setQuizSelectedAnswerIndex = (index) => {
+  if (modeData.value.closeAndShowResults) {
+    notify({
+      title: "Antwort wählen",
+      text: `Die Wahl einer anderen Antwort ist nicht mehr möglich, da schon das Ergebnis gezeigt wurde.`,
+      type: "warn",
+    })
+    return
+  }
+  quizSelectedAnswerIndex.value = index
+}
+
+const interactionRaisedHand = ref(false)
+
+const setInteractionRaisedHand = (value) => {
+  interactionRaisedHand.value = value
+}
+
 onMounted(() => {
   //useUpdateRoomFromStore(roomId.value)
 })
-
 </script>
 
 <template>
@@ -45,9 +83,7 @@ onMounted(() => {
         </div>
       </div>
     
-    <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion']" :showRemoveButton="true">
-      <template v-slot:content1>
-        <div>
+        <div v-if="mode === 'inactive'">
           <div class="row">
             <div class="col-1">
             </div>
@@ -67,9 +103,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-      </template>
-      <template v-slot:content2>
-        <div>
+        <div v-if="mode === 'quiz'">
           <div class="row">
             <div class="col-1">
             </div>
@@ -79,7 +113,29 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3','Screen4']" :showRemoveButton="true">
+          <div>
+            <div v-for="index in getIndiciesFromCount(modeData.answersCount)" class="row py-2 align-items-center">
+              <div class="col-1">
+              </div>
+              <div class="col-1 px-1" v-if="modeData.closeAndShowResults">
+                <svg v-if="modeData.correctAnswerIndex === index" xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="white" class="bi bi-check-circle" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="white" class="bi bi-x-circle" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+              </div>
+              <div :class="'text-center' + (modeData.closeAndShowResults ? ' col-9 px-4' : ' col-10') + ((quizSelectedAnswerIndex === (index)) ? ' btn-selected-border' : '')" @click.prevent="setQuizSelectedAnswerIndex(index)">
+                <h4 :class="'p-3 bg-btn'+(index+1)+'-color text-white rounded' + ((quizSelectedAnswerIndex === (index)) ? ' btn-selected' : ' shadow')">{{ getQuizLetterStringFromIndex(index) }}</h4>
+              </div>
+              <div class="col-1"> 
+              </div>
+            </div>
+          </div>
+          <!--
+          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3','Screen4']" :showRemoveButton="true" :modelValue="0">
             <template v-slot:content1>
               <div>
                 <div class="row py-2" id="btn1">
@@ -118,7 +174,6 @@ onMounted(() => {
                   <div class="col-1"> 
                   </div>
                 </div>
-
               </div>
             </template>
             <template v-slot:content2>
@@ -231,10 +286,9 @@ onMounted(() => {
               </div>
             </template>
           </DropdownWithSlots>
+          -->
         </div>
-      </template>
-      <template v-slot:content3>
-        <div>
+        <div v-if="mode === 'interaction'">
           <div class="row">
             <div class="col-1">
             </div>
@@ -244,7 +298,30 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3']" :showRemoveButton="true">
+          <div v-if="!interactionRaisedHand">
+            <button type="button" class="btn btn-btn2-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(true)">MELDEN</button>
+          </div>
+          <div v-else>
+            <div v-if="false"> <!-- TODO -->
+              <div class="card shadow w-100 text-bg-btn2-color bg-gradient text-white" style="width: 18rem;">
+                <div class="card-footer text-center">
+                  <img alt="icon" src="@/assets/img/selected.svg" width="150"/>
+                </div>
+                
+                <div class="card-body py-5" >
+                  <h1 class="card-text text-black text-center">Du wurdest drangenommen</h1>
+                </div>
+                <div class="card-footer text-center">
+                  <button type="button" class="btn btn-btn3-color bg-gradient w-50 py-4 " @click.prevent="setInteractionRaisedHand(false)">OK</button>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              <button type="button" class="btn btn-btn1-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(false)">MELDUNG ZURÜCKZIEHEN</button>
+            </div>
+          </div>
+          <!--
+          <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3']" :showRemoveButton="true" :modelValue="0">
             <template v-slot:content1>
               <div>
                 <button type="button" class="btn btn-btn2-color bg-gradient w-100 py-5 shadow">MELDEN</button>
@@ -273,9 +350,8 @@ onMounted(() => {
               </div>
             </template>
           </DropdownWithSlots>
+          -->
         </div>
-      </template>
-    </DropdownWithSlots>
   </div>
 </template>
 

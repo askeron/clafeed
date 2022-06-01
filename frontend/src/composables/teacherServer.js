@@ -82,6 +82,17 @@ export async function useUpdateRoomFromStore(id) {
   })
 }
 
+export async function useUpdateRoomModeData(id, modeData) {
+  const teacherStore = useTeacherStore()
+  const { secret, name } = teacherStore.getRoomById(id)
+  await jsonPost('/api/v1/teacher/updateRoom', {
+    id,
+    secret,
+    name,
+    modeData,
+  })
+}
+
 export async function useCreateInviteCode(roomId) {
   const teacherStore = useTeacherStore()
   const { secret: roomSecret } = teacherStore.getRoomById(roomId)
@@ -94,4 +105,52 @@ export async function useCreateInviteCode(roomId) {
     code,
     validUntil: Date.now() + lifetimeMillis
   })
+}
+
+export async function useAcceptAllPendingInvites() {
+  await jsonPost('/api/v1/teacher/hack/acceptAllPendingInvites', {
+  })
+}
+
+export function useWebsocket(pupilModeInteractionListener) {
+  const ws = new WebSocket("ws://localhost:8080/")
+  //let lastKeepAlive = Date.now()
+  ws.onopen = function() {
+      console.log('WebSocket Client Connected')
+      ws.send('{"type": "resend-all"}')
+      /*
+      ws.send('{"type": "resend-all"}')
+      setInterval(() => {
+          if (lastKeepAlive + 60000 < Date.now()) {
+              setTimeout(() => {
+                  document.getElementById("warning").style.display = "block"
+              }, 2000)
+              fetch('/isAlive')
+                  .then(() => location.reload())
+                  .catch(() => {})
+          }
+      }, 5000)
+      */
+  }
+  ws.onmessage = function(e) {
+      const message = JSON.parse(e.data)
+      if (message.type === "pupil-mode-interaction") {
+        pupilModeInteractionListener(message)
+      }
+    /*
+      if (message.type === "icon") {
+          document.getElementById("image"+message.index).src = "data:image/png;base64,"+message.pngBase64
+      }
+      if (message.type === "keepalive") {
+          lastKeepAlive = Date.now()
+      }
+      */
+  }
+  /*
+  return {
+    disconnect() {
+      ws.d
+    }
+  }
+  */
 }

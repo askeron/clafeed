@@ -69,6 +69,10 @@ const data = {
                     roomDeviceSecret: "107e768f183deb80080fe43df504bef6333516bd5ee7cf7af0e4be201f284586",
                 },
             ],
+            modeData: {
+                mode: "inactive",
+                data: {}
+            },
         },
     ],
     inviteCodes: [
@@ -86,8 +90,19 @@ const data = {
             suggestedPupilName: "Sven",
             maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
         },
+    ],
+    // HACK START
+    suggestedPupilNames: [
+        {
+            roomDeviceId: "d28df0e8d2cbd14cbba6730a57f71f0eec7dee9066fdae686a6a5ae7b196bf7b",
+            suggestedPupilName: "Sven",
+        }
     ]
+    // HACK END
+
 }
+
+
 
 
 if (!serverEnv.devMode) {
@@ -142,6 +157,10 @@ expressApp.post('/api/v1/teacher/updateRoom', function(req, res, next) {
             currentlyOpen: false,
             lastKeepAliveFromTeacher: Date.now(),
             allowedRoomDevices: [],
+            modeData: {
+                mode: "inactive",
+                data: {}
+            },
         }
         data.rooms.push(room)
     }
@@ -153,11 +172,16 @@ expressApp.post('/api/v1/teacher/updateRoom', function(req, res, next) {
             roomDeviceSecret: generateRoomDeviceSecret(room.id, roomDeviceId),
         }
     }) : room.allowedRoomDevices
+    // TODO make better
+    const newModeData = req.body.modeData !== undefined ? req.body.modeData : room.modeData
     room.name = newRoomName
     room.currentlyOpen = newCurrentlyOpen
     room.allowedRoomDevices = newAllowedRoomDevices
+    room.modeData = newModeData
     room.lastKeepAliveFromTeacher = Date.now()
     res.json({})
+    // TODO make better
+    sendRoomModeDataOverWebSocket(room.id)
 })
 
 expressApp.post('/api/v1/teacher/createInviteCode', function(req, res, next) {
@@ -188,14 +212,24 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
         const roomDeviceIdSuffix = "0" // last char reserved for later use
         const roomDeviceId = util.getCryptoRandomHexChars(64 - roomDeviceIdSuffix.length) + roomDeviceIdSuffix
         const roomDeviceSecret = generateRoomDeviceSecret(roomId, roomDeviceId)
+        const suggestedPupilName = util.checkStringWithMaxLength(req.body.suggestedPupilName, 200)
 
         data.pendingInvites.push({
             roomId,
             roomDeviceId,
             roomDeviceSecret,
-            suggestedPupilName: util.checkStringWithMaxLength(req.body.suggestedPupilName, 200),
+            suggestedPupilName,
             maxLifetimeDate: Date.now() + serverEnv.pendingInviteLifetimeMillis,
         })
+
+        // HACK START
+
+        data.suggestedPupilNames.push({
+            roomDeviceId,
+            suggestedPupilName,
+        })
+
+        // HACK END
 
         res.json({
             found: true,
@@ -215,7 +249,7 @@ expressApp.post('/api/v1/pupil/useInviteCode', function(req, res, next) {
 // HACK START
 function acceptAllPendingInvites() {
     data.pendingInvites.forEach(({roomId, roomDeviceId, roomDeviceSecret}) => {
-        const room = findRoom(roomId)
+        const room = findRoomOrNull(roomId)
         if (room) {
             room.allowedRoomDevices.push({
                 roomDeviceId,
@@ -226,12 +260,13 @@ function acceptAllPendingInvites() {
 }
 
 cron.schedule('*/3 * * * * *', () => {
-    acceptAllPendingInvites()
+//    acceptAllPendingInvites()
 })
 
-expressApp.post('/hack/teacher/acceptAllPendingInvites', function(req, res, next) {
+expressApp.post('/api/v1/teacher/hack/acceptAllPendingInvites', function(req, res, next) {
     removeOldPendingInvites()
     acceptAllPendingInvites()
+    res.json({})
 })
 
 // HACK END
@@ -275,6 +310,10 @@ function createNewRoom(name) {
         lastKeepAliveFromTeacher: Date.now(),
         allowedRoomDevices: [
         ],
+        modeData: {
+            mode: "nothing",
+            data: {}
+        },
     }
     data.rooms.push(room)
     return room
@@ -302,7 +341,7 @@ function checkRoomSecret(id, secret) {
     checkIdFormat(id)
     checkIdFormat(secret)
     if (generateRoomSecret(id) !== secret) {
-        throw "wrong roomSecret"
+        throw new Error("wrong roomSecret")
     }
 }
 
@@ -311,19 +350,19 @@ function checkRoomDeviceSecret(roomId, roomDeviceId, roomDeviceSecret) {
     checkIdFormat(roomDeviceId)
     checkIdFormat(roomDeviceSecret)
     if (generateRoomDeviceSecret(roomId, roomDeviceId) !== roomDeviceSecret) {
-        throw "wrong roomDeviceSecret"
+        throw new Error("wrong roomDeviceSecret")
     }
 }
 
 function onlyInDevMode() {
     if (!serverEnv.devMode) {
-        throw "devmode is active"
+        throw new Error("devmode is active")
     }
 }
 
 function checkNotNullish(value, errorMsg) {
     if (!value) {
-        throw errorMsg
+        throw new Error(errorMsg)
     }
     return value
 }
@@ -355,6 +394,57 @@ function findInviteCode(code) {
     removeOldInviteCodes()
     return data.inviteCodes.find(x => x.code === code)
 }
+
+
+setInterval(() => {
+    sendMessageOverWebSocket({
+        type: "keepalive",
+    })
+}, 20000)
+
+webSocketServer.on('connection', (webSocket) => {
+    webSocket.on('message', (messageJson) => {
+        const message = JSON.parse(messageJson)
+        console.log("received websocket message", message)
+        if (message.type === "resend-all") {
+            resendAllModeDataOverWebSocket()
+        }
+        if (message.type === "pupil-mode-interaction") {
+            const { roomDeviceId } = message
+            message.suggestedPupilName = data.suggestedPupilNames.find(x => x.roomDeviceId === roomDeviceId)?.suggestedPupilName
+            sendMessageOverWebSocket(message)
+        }
+    })
+})
+
+function resendAllModeDataOverWebSocket() {
+    data.rooms.forEach(x => sendRoomModeDataOverWebSocket(x.id))
+}
+
+function sendRoomModeDataOverWebSocket(roomId) {
+    const { modeData } = findRoom(roomId)
+    sendMessageOverWebSocket({
+        type: "mode-data",
+        roomId,
+        modeData,
+    })
+}
+
+function sendMessageOverWebSocket(messageObject) {
+	const message = JSON.stringify(messageObject)
+	webSocketServer.clients.forEach(webSocket => {
+		try {
+			webSocket.send(message)
+		} catch(e) {
+			console.error("error while sending to all clients via websocket", e)
+		}
+	})
+    console.log("send websocket message", messageObject)
+}
+
+
+
+
 
 expressServer.listen(8080)
 console.log("clafeed started")

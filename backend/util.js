@@ -14,7 +14,7 @@ function checkArray(value) {
 
 function checkIdFormat(id) {
     if (!isLowerCaseHexStringWithLength(id, 64)) {
-        throw "invalid id format"
+        throw new Error("invalid id format")
     }
     return id
 }
@@ -44,19 +44,19 @@ module.exports = {
     },
     assertTrue(conditionResult, message) {
         if (conditionResult) {
-            throw message
+            throw new Error(message)
         }
         return value
     },
     checkStringWithMaxLength(text, maxLength) {
         if (!(typeof text === "string" && text.length <= maxLength)) {
-            throw "invalid string length"
+            throw new Error("invalid string length")
         }
         return text
     },
     checkBoolean(value) {
         if (!(typeof value === "boolean")) {
-            throw "not a boolean"
+            throw new Error("not a boolean")
         }
         return value
     },
@@ -72,7 +72,7 @@ module.exports = {
         checkArray(value)
         value.forEach(x => {
             if (!(typeof x === "object")) {
-                throw "not a object"
+                throw new Error("not a object")
             }
         });
         return value

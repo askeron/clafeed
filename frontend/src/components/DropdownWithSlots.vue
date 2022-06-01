@@ -1,8 +1,5 @@
 <script setup>
-import { ref, computed } from "vue"
-const activeIndexString = ref("0")
-const activeIndex = computed(() => parseInt(activeIndexString.value))
-
+import { ref, computed, toRefs, watch, defineEmits } from "vue"
 const props = defineProps({
   displayNames: {
     type: Array,
@@ -10,6 +7,26 @@ const props = defineProps({
   showRemoveButton: {
     type: Boolean,
   },
+  modelValue: {
+    type: Number,
+    required: true,
+  },
+})
+const { modelValue } = toRefs(props)
+
+watch(modelValue, (currentValue, oldValue) => {
+  activeIndexString.value = ""+currentValue
+})
+
+const activeIndexString = ref("0")
+const activeIndex = computed(() => parseInt(activeIndexString.value))
+
+const emit = defineEmits(['update:modelValue'])
+
+watch(activeIndex, (currentValue, oldValue) => {
+  if (modelValue.value !== currentValue) {
+    emit('update:modelValue', currentValue)
+  }
 })
 
 const showDropdown = ref(true)

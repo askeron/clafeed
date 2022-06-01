@@ -18,6 +18,9 @@ export const usePupilStore = defineStore({
     getPendingInvitesByRoomDeviceId: (state) => {
       return (roomDeviceId) => state.pendingInvites.find((x) => x.roomDeviceId === roomDeviceId)
     },
+    hasPendingInviteWithInviteCode: (state) => {
+      return (inviteCode) => state.pendingInvites.filter((x) => x.inviteCode === inviteCode).length > 0
+    },
   },
   actions: {
     addRoom({ roomId, roomName, roomDeviceId, roomDeviceSecret }) {
@@ -33,13 +36,14 @@ export const usePupilStore = defineStore({
       console.log(`delete $id`)
       deleteItemFromArray(this.storedRooms, x => x.id === id)
     },
-    addPendingInvite({ roomId, roomName, roomDeviceId, roomDeviceSecret, validUntil }) {
+    addPendingInvite({ roomId, roomName, roomDeviceId, roomDeviceSecret, validUntil, inviteCode }) {
       this.pendingInvites.push({
         roomId,
         roomName,
         roomDeviceId,
         roomDeviceSecret,
         validUntil,
+        inviteCode,
       })
     },
     removePendingInvite(roomDeviceId) {

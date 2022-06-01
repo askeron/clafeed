@@ -44,3 +44,10 @@ export function getArraySortedByDesc(array, mapFunction) {
   return result
 }
 
+export function getQuizLetterStringFromIndex(index) {
+  return String.fromCharCode(65 + index)
+}
+
+export function getIndiciesFromCount(count) {
+  return Array.from(Array(count).keys())
+}
