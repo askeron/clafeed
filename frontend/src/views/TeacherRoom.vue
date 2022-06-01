@@ -111,7 +111,7 @@ watch(modeDatas, (currentValue, oldValue) => {
                 Antwortanzahl:
               </div>
               <select v-model="quizAnswersCountString">
-                <option v-for="count in 6" :key="count" :value="count">{{ count }}</option>
+                <option v-for="count in 4" :key="count" :value="count">{{ count }}</option>
               </select>
             </div>
             <div>
