@@ -15,6 +15,7 @@ const pupilStore = usePupilStore()
 const route = useRoute()
 const roomId = computed(() => route.params.roomId)
 const room = computed(() => pupilStore.getRoomById(roomId.value))
+const roomDeviceId = computed(() => room.value.roomDeviceId)
 const dateNow = useDateNow()
 
 const roomIdModeDataMap = reactive({})
@@ -56,13 +57,13 @@ const setInteractionRaisedHand = (value) => {
     type: "pupil-mode-interaction",
     subtype: "interactionRaisedHand",
     roomId: roomId.value,
-    roomDeviceId: room.value.roomDeviceId,
+    roomDeviceId: roomDeviceId.value,
     raisedHand: value,
   })
 }
 
 watch(modeDataComplete, (currentValue, oldValue) => {
-  if (currentValue.mode === 'interaction' && oldValue.mode === 'interaction' && oldValue.data.calledRaiseHandRoomDeviceId === room.value.roomDeviceId && currentValue.data.calledRaiseHandRoomDeviceId !== room.value.roomDeviceId) {
+  if (currentValue.mode === 'interaction' && oldValue.mode === 'interaction' && oldValue.data.calledRaiseHandRoomDeviceId === roomDeviceId.value && currentValue.data.calledRaiseHandRoomDeviceId !== roomDeviceId.value) {
     setInteractionRaisedHand(false)
   }
 })
@@ -93,7 +94,6 @@ onMounted(() => {
           <div class="row">
             <h6>Room ID: {{ roomId.substring(0,4) }}</h6>
           </div>
-          
         </div>
       </div>
     
@@ -312,7 +312,7 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <div v-if="modeData.calledRaiseHandRoomDeviceId">
+          <div v-if="modeData.calledRaiseHandRoomDeviceId === roomDeviceId">
             <div class="card shadow w-100 text-bg-btn2-color bg-gradient text-white" style="width: 18rem;">
               <div class="card-footer text-center">
                 <img alt="icon" src="@/assets/img/selected.svg" width="150"/>
