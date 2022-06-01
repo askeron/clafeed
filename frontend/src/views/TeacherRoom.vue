@@ -7,7 +7,7 @@ import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
 import { useDateNow } from '@/composables/useDateNow'
 import { useUpdateRoomFromStore, useUpdateRoomModeData, useCreateInviteCode, useOpenRoom, useCloseRoom, useAcceptAllPendingInvites, useWebsocket } from '@/composables/teacherServer'
-import { getSecondsLeftString, getQuizLetterStringFromIndex, getIndiciesFromCount, deleteItemFromArray } from '@/utils/common'
+import { getSecondsLeftString, getQuizLetterStringFromIndex, getIndiciesFromCount, deleteItemFromArray, getCurrentUrlWithoutPath } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
 
@@ -15,6 +15,20 @@ const route = useRoute()
 const roomId = computed(() => route.params.roomId)
 const room = computed(() => teacherStore.getRoomById(roomId.value))
 const dateNow = useDateNow()
+
+const inviteUrl = computed(() => getCurrentUrlWithoutPath() + "/join/" + room.value.inviteCode)
+const shareInviteUrl = () => {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Clafeed Einladung zu Raum '+room.value.name,
+      url: inviteUrl.value,
+    }).then(() => {
+      console.log('Thanks for sharing!');
+    })
+    .catch(console.error);
+  }
+}
+
 const modeIndex = ref(0)
 const mode = computed(() => {
   const index = modeIndex.value
@@ -196,6 +210,7 @@ watch(modeDatas, (currentValue, oldValue) => {
             <div v-if="room.inviteCode && room.inviteCodeValidUntil > dateNow">
               <h3>{{ room.inviteCode }}</h3>
               <p>noch gültig für {{ getSecondsLeftString(room.inviteCodeValidUntil - dateNow) }}</p>
+              <p>Direktlink <a :href="inviteUrl">{{ inviteUrl }}</a> <button @click.prevent="shareInviteUrl()">link sharen</button></p>
               <button @click.prevent="useCreateInviteCode(roomId)">neu generieren</button>
             </div>
             <div v-else>

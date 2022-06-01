@@ -51,3 +51,10 @@ export function getQuizLetterStringFromIndex(index) {
 export function getIndiciesFromCount(count) {
   return Array.from(Array(count).keys())
 }
+
+export function getCurrentUrlWithoutPath() {
+  const { protocol, host, port } = document.location
+  const portNeeded = port === 80 || port === 443
+  return protocol + "//" + host + (portNeeded ? ":" + port : "")
+}
+

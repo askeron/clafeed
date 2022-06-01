@@ -1,7 +1,8 @@
 <script setup>
 import ThePupilMainTabs from '@/components/ThePupilMainTabs.vue'
 import { useStorage } from '@vueuse/core'
-import { ref, reactive, watch, computed } from "vue"
+import { ref, reactive, watch, computed, onMounted } from "vue"
+import { useRoute } from 'vue-router'
 import { usePupilStore } from '@/stores/pupil'
 import { useCheckPendingInvites, useUseInviteCode } from '@/composables/pupilServer'
 import { useDateNow } from '@/composables/useDateNow'
@@ -9,6 +10,9 @@ import { getSecondsLeftString } from '@/utils/common'
 import { notify } from "@kyvg/vue3-notification"
 
 const pupilStore = usePupilStore()
+
+const route = useRoute()
+const inviteCodeParam = computed(() => route.params.inviteCodeParam)
 
 const inviteCode = ref("")
 const suggestedName = useStorage('pupilSuggestedName', "Max Mustermann")
@@ -34,6 +38,12 @@ const joinRoom = () => {
   useUseInviteCode(inviteCode.value, suggestedName.value)
 }
 
+onMounted(() => {
+  if (inviteCodeParam.value) {
+    inviteCode.value = inviteCodeParam.value.substring(0,8)
+  }
+})
+
 </script>
 
 <template>
@@ -47,7 +57,7 @@ const joinRoom = () => {
       <label for="suggestedName" class="form-label text-white">Name Schüler*innen</label>
       <input v-model="suggestedName" id="suggestedName" class="form-control">
       <br/>
-      <button @click.prevent="joinRoom()" class="btn btn-primary shadow">Raum beitretten</button>
+      <button @click.prevent="joinRoom()" class="btn btn-primary shadow">Raum beitreten</button>
     </div>
     <div>
       <transition-group name="flip-list" tag="div">

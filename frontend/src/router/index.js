@@ -20,6 +20,10 @@ const router = createRouter({
       component: PupilJoin
     },
     {
+      path: '/join/:inviteCodeParam',
+      component: PupilJoin
+    },
+    {
       path: '/room/:roomId',
       name: 'pupilRoom',
       component: PupilRoom
