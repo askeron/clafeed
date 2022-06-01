@@ -69,6 +69,7 @@ watch(modeDataComplete, (currentValue, oldValue) => {
 
 onMounted(() => {
   //useUpdateRoomFromStore(roomId.value)
+  sendMessageOverWebsocket({type: "resend-all"})
 })
 </script>
 
