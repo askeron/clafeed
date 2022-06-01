@@ -39,14 +39,16 @@ watch(mode, (currentValue, oldValue) => {
 
 const setQuizSelectedAnswerIndex = (index) => {
   if (modeData.value.closeAndShowResults) {
+    /*
     notify({
       title: "Antwort wählen",
       text: `Die Wahl einer anderen Antwort ist nicht mehr möglich, da schon das Ergebnis gezeigt wurde.`,
       type: "warn",
     })
+    */
     return
   }
-  quizSelectedAnswerIndex.value = index
+  quizSelectedAnswerIndex.value = quizSelectedAnswerIndex.value === index ? -1 : index
 }
 
 const interactionRaisedHand = ref(false)
@@ -70,7 +72,7 @@ watch(modeDataComplete, (currentValue, oldValue) => {
 
 onMounted(() => {
   //useUpdateRoomFromStore(roomId.value)
-  sendMessageOverWebsocket({type: "resend-all"})
+  //sendMessageOverWebsocket({type: "resend-all"})
 })
 </script>
 
