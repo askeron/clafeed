@@ -409,9 +409,10 @@ webSocketServer.on('connection', (webSocket) => {
         if (message.type === "resend-all") {
             resendAllModeDataOverWebSocket()
         }
-        if (message.type === "pupil-mode-interaction") {
+        if (message.type === "pupil-mode-interaction" && !(message.alreadyProcessByServer)) {
             const { roomDeviceId } = message
             message.suggestedPupilName = data.suggestedPupilNames.find(x => x.roomDeviceId === roomDeviceId)?.suggestedPupilName
+            message.alreadyProcessByServer = true
             sendMessageOverWebSocket(message)
         }
     })

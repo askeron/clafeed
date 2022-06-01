@@ -6,8 +6,8 @@ import TabsWithSlots from '@/components/TabsWithSlots.vue'
 import DropdownWithSlots from '@/components/DropdownWithSlots.vue'
 import { useTeacherStore } from '@/stores/teacher'
 import { useDateNow } from '@/composables/useDateNow'
-import { useUpdateRoomFromStore, useUpdateRoomModeData, useCreateInviteCode, useOpenRoom, useCloseRoom, useAcceptAllPendingInvites } from '@/composables/teacherServer'
-import { getSecondsLeftString, getQuizLetterStringFromIndex, getIndiciesFromCount } from '@/utils/common'
+import { useUpdateRoomFromStore, useUpdateRoomModeData, useCreateInviteCode, useOpenRoom, useCloseRoom, useAcceptAllPendingInvites, useWebsocket } from '@/composables/teacherServer'
+import { getSecondsLeftString, getQuizLetterStringFromIndex, getIndiciesFromCount, deleteItemFromArray } from '@/utils/common'
 
 const teacherStore = useTeacherStore()
 
@@ -46,6 +46,23 @@ onMounted(() => {
   useUpdateRoomFromStore(roomId.value)
 })
 
+const interactionRaisedHands = reactive([])
+
+const { sendMessageOverWebsocket } = useWebsocket((msg) => {
+  if (msg.subtype === "interactionRaisedHand" && msg.roomId === roomId.value) {
+    const { roomDeviceId, suggestedPupilName } = msg
+    if (msg.raisedHand) {
+      if (interactionRaisedHands.filter(x => x.roomDeviceId === roomDeviceId).length === 0) {
+        interactionRaisedHands.push({
+          roomDeviceId,
+          suggestedPupilName,
+        })
+      }
+    } else {
+      deleteItemFromArray(interactionRaisedHands, x => x.roomDeviceId === roomDeviceId)
+    }
+  }
+})
 
 const updateModeData = () => {
   useUpdateRoomModeData(roomId.value, {
@@ -110,10 +127,21 @@ watch(modeDatas, (currentValue, oldValue) => {
             </div>
           </template>
           <template v-slot:content3>
-            <p>TODO: Austehende Eintritte Liste</p>
-          </template>
-          <template v-slot:content4>
-            <p>TODO: Eventdaten</p>
+            <div>
+              <div>
+                <input type="checkbox" v-model="modeDatas.interaction.enabled"/> melden möglich
+              </div>
+              <div>
+                <h3>Gemeldet:</h3>
+                <transition-group name="flip-list" tag="div">
+                  <div v-for="raisedHandData in interactionRaisedHands" :key="raisedHandData.roomDeviceId">
+                    {{ raisedHandData.suggestedPupilName }} ({{ raisedHandData.roomDeviceId.substring(0,4) }}){{ (modeDatas.interaction.calledRaiseHandRoomDeviceId === raisedHandData.roomDeviceId) ? ' - drangenommen' : ''}}
+                    <button @click.prevent="modeDatas.interaction.calledRaiseHandRoomDeviceId = raisedHandData.roomDeviceId">drannehmen</button>
+                  </div>
+                </transition-group>
+                <button @click.prevent="modeDatas.interaction.calledRaiseHandRoomDeviceId = null">niemand drannehmen</button>
+              </div>
+            </div>
           </template>
         </DropdownWithSlots>
       </template>

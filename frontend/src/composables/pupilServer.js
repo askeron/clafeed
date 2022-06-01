@@ -140,4 +140,9 @@ export function useWebsocket(modeDataListener) {
     }
   }
   */
+  return {
+    sendMessageOverWebsocket(msgObject) {
+      ws.send(JSON.stringify(msgObject))
+    }
+  }
 }

@@ -19,7 +19,7 @@ const dateNow = useDateNow()
 
 const roomIdModeDataMap = reactive({})
 
-useWebsocket((modeDataMsg) => {
+const { sendMessageOverWebsocket } = useWebsocket((modeDataMsg) => {
   const { roomId, modeData } = modeDataMsg
   roomIdModeDataMap[roomId] = JSON.stringify(modeData)
 })
@@ -52,7 +52,20 @@ const interactionRaisedHand = ref(false)
 
 const setInteractionRaisedHand = (value) => {
   interactionRaisedHand.value = value
+  sendMessageOverWebsocket({
+    type: "pupil-mode-interaction",
+    subtype: "interactionRaisedHand",
+    roomId: roomId.value,
+    roomDeviceId: room.value.roomDeviceId,
+    raisedHand: value,
+  })
 }
+
+watch(modeDataComplete, (currentValue, oldValue) => {
+  if (currentValue.mode === 'interaction' && oldValue.mode === 'interaction' && oldValue.data.calledRaiseHandRoomDeviceId === room.value.roomDeviceId && currentValue.data.calledRaiseHandRoomDeviceId !== room.value.roomDeviceId) {
+    setInteractionRaisedHand(false)
+  }
+})
 
 onMounted(() => {
   //useUpdateRoomFromStore(roomId.value)
@@ -298,27 +311,21 @@ onMounted(() => {
             <div class="col-1"> 
             </div>
           </div>
-          <div v-if="!interactionRaisedHand">
-            <button type="button" class="btn btn-btn2-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(true)">MELDEN</button>
-          </div>
-          <div v-else>
-            <div v-if="false"> <!-- TODO -->
-              <div class="card shadow w-100 text-bg-btn2-color bg-gradient text-white" style="width: 18rem;">
-                <div class="card-footer text-center">
-                  <img alt="icon" src="@/assets/img/selected.svg" width="150"/>
-                </div>
-                
-                <div class="card-body py-5" >
-                  <h1 class="card-text text-black text-center">Du wurdest drangenommen</h1>
-                </div>
-                <div class="card-footer text-center">
-                  <button type="button" class="btn btn-btn3-color bg-gradient w-50 py-4 " @click.prevent="setInteractionRaisedHand(false)">OK</button>
-                </div>
+          <div v-if="modeData.calledRaiseHandRoomDeviceId">
+            <div class="card shadow w-100 text-bg-btn2-color bg-gradient text-white" style="width: 18rem;">
+              <div class="card-footer text-center">
+                <img alt="icon" src="@/assets/img/selected.svg" width="150"/>
+              </div>
+              <div class="card-body py-5" >
+                <h1 class="card-text text-black text-center">Du wurdest drangenommen</h1>
               </div>
             </div>
-            <div v-else>
-              <button type="button" class="btn btn-btn1-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(false)">MELDUNG ZURÜCKZIEHEN</button>
-            </div>
+          </div>
+          <div v-else-if="!interactionRaisedHand">
+            <button type="button" class="btn btn-btn2-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(true)" :disabled="!modeData.enabled">MELDEN</button>
+          </div>
+          <div v-else>
+            <button type="button" class="btn btn-btn1-color bg-gradient w-100 py-5 shadow" @click.prevent="setInteractionRaisedHand(false)" :disabled="!modeData.enabled">MELDUNG ZURÜCKZIEHEN</button>
           </div>
           <!--
           <DropdownWithSlots :displayNames="['Screen1','Screen2','Screen3']" :showRemoveButton="true" :modelValue="0">

@@ -121,7 +121,6 @@ export function useWebsocket(pupilModeInteractionListener) {
   //let lastKeepAlive = Date.now()
   ws.onopen = function() {
       console.log('WebSocket Client Connected')
-      ws.send('{"type": "resend-all"}')
       /*
       ws.send('{"type": "resend-all"}')
       setInterval(() => {
@@ -157,4 +156,9 @@ export function useWebsocket(pupilModeInteractionListener) {
     }
   }
   */
+  return {
+    sendMessageOverWebsocket(msgObject) {
+      ws.send(JSON.stringify(msgObject))
+    }
+  }
 }
