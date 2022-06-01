@@ -125,6 +125,11 @@ watch(modeDatas, (currentValue, oldValue) => {
   updateModeData()
 })
 
+const modeDisplayNames = ['Inaktiv','Quiz','Interaktion']
+if (localStorage.getItem("allowPictureMode")) {
+  modeDisplayNames.push('Bild')
+}
+
 </script>
 
 <template>
@@ -136,7 +141,7 @@ watch(modeDatas, (currentValue, oldValue) => {
     </div>
     <TabsWithSlots :displayNames="['Aktivität','Verwaltung']">
       <template v-slot:content1>
-        <DropdownWithSlots :displayNames="['Inaktiv','Quiz','Interaktion','Bild']" v-model="modeIndex">
+        <DropdownWithSlots :displayNames="modeDisplayNames" v-model="modeIndex">
           <template v-slot:content1>
             <div>
             </div>

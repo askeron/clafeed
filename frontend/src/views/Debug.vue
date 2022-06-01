@@ -12,6 +12,12 @@ const enableMultipleInstances = () => {
 const disableMultipleInstances = () => {
   localStorage.removeItem("allowMultipleInstaces")
 }
+const enablePictureMode = () => {
+  localStorage.setItem("allowPictureMode","true")
+}
+const disablePictureMode = () => {
+  localStorage.removeItem("allowPictureMode")
+}
 </script>
 
 <template>
@@ -27,6 +33,12 @@ const disableMultipleInstances = () => {
     </p>
     <p>
       <button @click.prevent="disableMultipleInstances()">mehrere Instanzen verbieten</button>
+    </p>
+    <p>
+      <button @click.prevent="enablePictureMode()">Bild-Modus erlauben</button>
+    </p>
+    <p>
+      <button @click.prevent="disablePictureMode()">Bild-Modus verbieten</button>
     </p>
   </div>
 </template>
