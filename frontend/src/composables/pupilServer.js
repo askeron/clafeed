@@ -96,7 +96,11 @@ export async function useUseInviteCode(inviteCode, suggestedPupilName) {
 }
 
 export function useWebsocket(modeDataListener) {
-  const ws = new WebSocket("ws://localhost:8080/")
+  let url = "ws://localhost:8080/"
+  if (window.location.protocol === "https:") {
+    url = "wss://"+window.location.host+"/";
+  }
+  const ws = new WebSocket(url)
   //let lastKeepAlive = Date.now()
   ws.onopen = function() {
       console.log('WebSocket Client Connected')
