@@ -230,7 +230,7 @@ if (localStorage.getItem("allowPictureMode")) {
             <p>TODO: Austehende Eintritte Liste</p>
           </template>
           <template v-slot:content4>
-            <p>TODO: Eventdaten</p>
+            <p>TODO: Eventdaten </p>
           </template>
         </DropdownWithSlots>
       </template>
